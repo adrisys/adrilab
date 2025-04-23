@@ -17,15 +17,15 @@ provider "proxmox" {
 
 
 resource "proxmox_vm_qemu" "my_vm" {
-  name        = "my-new-vm"
+  name        = "terraform-vm"
   target_node = "pve"
   clone       = "ubuntu-template"
 
-  ipconfig0 = "ip=10.0.10.111/24,gw=10.0.10.1"
+  # ipconfig0 = "ip=10.0.10.111/24,gw=10.0.10.1"
 
-  os_type = "cloud-init"
-  ciuser  = "ubuntu"
-  cipassword = "securepassword"
+  # os_type = "cloud-init"
+  # ciuser  = "ubuntu"
+  # cipassword = "securepassword"
 
-  sshkeys = file("~/.ssh/id_rsa.pub")
+  # sshkeys = file("~/.ssh/id_rsa.pub")
 }

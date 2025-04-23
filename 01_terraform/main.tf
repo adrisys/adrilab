@@ -17,15 +17,35 @@ provider "proxmox" {
 
 
 resource "proxmox_vm_qemu" "my_vm" {
-  name        = "terraform-vm"
+  name        = "ubuntu-tf-test"
   target_node = "pve"
   clone       = "ubuntu-template"
+  full_clone  = true  # optional, but ensures it's independent
+  cores       = 2
+  memory      = 2048
 
-  # ipconfig0 = "ip=10.0.10.111/24,gw=10.0.10.1"
+  # Required to ensure proper boot device setup
+  boot        = "order=scsi0"
+  bootdisk    = "scsi0"
 
-  # os_type = "cloud-init"
-  # ciuser  = "ubuntu"
-  # cipassword = "securepassword"
+  # Network config
+  network {
+    id     = 0
+    model  = "virtio"
+    bridge = "vmbr0"
+  }
 
-  # sshkeys = file("~/.ssh/id_rsa.pub")
+  # IP config for cloud-init
+  ipconfig0 = "ip=dhcp"
+
+  # SSH key (optional if you set one in the template already)
+  sshkeys = file("~/.ssh/id_rsa.pub")
+
+  # Optional disk resize
+  disk {
+    slot    = "scsi0"
+    size    = "40G"
+    type    = "disk"
+    storage = "local-lvm"
+  }
 }

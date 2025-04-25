@@ -16,7 +16,8 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "cloudinit-test" {
-    name = "terraform-test-vm"
+    count = 3
+    name = "cloudinit-test-${count.index + 1}"
     desc = "A test for using terraform and cloudinit"
 
     # Node name has to be the same name as within the cluster
@@ -76,9 +77,9 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
     # Keep in mind to use the CIDR notation for the ip.
     #ipconfig0 = "ip=192.168.10.20/24,gw=192.168.10.1"
     ipconfig0 = "ip=dhcp"
-    #sshkeys = <<EOF
-    #ssh-rsa 9182739187293817293817293871== user@pc
-    #EOF
+    sshkeys = <<EOF
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC5kvBKOfHoTWcE1w/fLVpjrAP/iPn9hMrQKpq49eacp26NZeK0DNyCRMn7glBNWtEs8wBuqRaYkAacU6OTh/CMZTBpFJHejlOPkWt2IwWnq6UI2uKsd6PLzFUo12BJXlJWCxg+dohUO46SX5mhrv+SUdgJwzTfHsXvCbJXhZJSUZflUd1R5BUpm2ospw3Kpf8Rvzg4KxaI8RfyqvgcPZIxMH3F1M39jygJvfigdBzhRe9oJ0y2FQ/yzpfkab7UetoV/2KHbr9By1Evd6xLxFk/3rCuuOqdxcf1EnHKErlt3H+SZrOdns3FWhfD4iSgKQaMW4QvEqRmF8QWssguD90T7AgD/YJ8yvwSsqaX4jFVUF3RbOh1vWYkjv3iDfZUwPEuUVBm0sEXTYaVMfQmjLBprxFEvOrux28D9o5lJW3p1bPvaMsfe55OBXlVyzk5sq/Ry4Bi6Aq6iEBJbf3/13l0Un4Kv8hQB1i/S5vb4FNWk8/BAzvJ7N97VvwotRmYkzCPiH0NkZCjWAItHq2ykVkVyMSctBojrQSMVKjPPEgTING7UXFeFxMPKwwq38BrY1qgHIB4BID/uZTDVc00t7Hn+puo6ytbn+K5aYYWVzeyoYIAV7SPbiy7FcEO7hzEbUZrAje6WKyFRLLrbDGanVnlu524fGCL+ZgC7DmdTzQbPw== adrian.navarro@outlook.com
+    EOF
     serial {
       id   = 0
       type = "socket"

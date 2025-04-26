@@ -16,7 +16,7 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "cloudinit-test" {
-    count = 3
+    count = 1
     name = "cloudinit-test-${count.index + 1}"
     desc = "A test for using terraform and cloudinit"
 
@@ -28,7 +28,7 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
 #    pool = "pool0"
 
     # The template name to clone this vm from
-    clone = "VM 9000"
+    clone = "VM 9001"
 
     # Activate QEMU agent for this VM
     agent = 0
@@ -69,7 +69,7 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
         id     = 0
         model  = "virtio"
         bridge = "vmbr0"
-        #tag = 256
+        tag = 50
     }
 
     # Setup the ip address using cloud-init.
@@ -86,6 +86,6 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
     }
     
     ciuser = "adri"
-    cipassword = "yourpassword"
+    cipassword = "adri"
 
 }

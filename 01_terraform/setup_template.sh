@@ -11,18 +11,18 @@ apt update -y && apt install libguestfs-tools -y
 virt-customize -a noble-server-cloudimg-amd64.img --install qemu-guest-agent
 
 # create a new VM with VirtIO SCSI controller
-qm create 9000 --memory 2048 --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci
+qm create 9001 --memory 2048 --net0 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci
 
 # import the downloaded disk to the local-lvm storage, attaching it as a SCSI drive
 # note that import path must be a full path, not relative
-qm set 9000 --scsi0 local-lvm:0,import-from=/root/noble-server-cloudimg-amd64.img
+qm set 9001 --scsi0 local-lvm:0,import-from=/root/noble-server-cloudimg-amd64.img
 
 # set boot and display options
-qm set 9000 --ide2 local-lvm:cloudinit
-qm set 9000 --serial0 socket --vga serial0
+qm set 9001 --ide2 local-lvm:cloudinit
+#qm set 9001 --serial0 socket --vga serial0
 
 # very important - had to be updated in the image
-qm set 9000 --boot c --bootdisk scsi0
+qm set 9001 --boot c --bootdisk scsi0
 
 # turn the VM into a template
-qm template 9000
+qm template 9001

@@ -31,7 +31,7 @@ resource "proxmox_vm_qemu" "cloudinit-test" {
     clone = "VM 9001"
 
     # Activate QEMU agent for this VM
-    agent = 0
+    agent = 1
 
     os_type = "cloud-init"
     cores = 2

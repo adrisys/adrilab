@@ -66,9 +66,6 @@ variable "ipconfig0" {
   default = "ip=dhcp"
 }
 
-variable "ssh_public_keys" {
-  type = string
-}
 
 variable "ciuser" {
   default = "adri"

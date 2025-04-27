@@ -42,7 +42,8 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
 
   boot      = "order=scsi0"
   ipconfig0 = var.ipconfig0
-  sshkeys   = var.ssh_public_keys
+  sshkeys   = file("${path.module}/adrilab.pub")
+
 
   serial {
     id   = 0

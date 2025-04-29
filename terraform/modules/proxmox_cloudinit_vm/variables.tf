@@ -1,6 +1,6 @@
 variable "vm_count" {
-  description = "Number of VMs to create"
   type        = number
+  description = "Number of VMs to create"
 }
 
 variable "vm_name" {
@@ -62,9 +62,10 @@ variable "disk_size" {
 }
 
 variable "disk_cache" {
-  description = "Disk cache mode"
+  description = "Disk cache mode (e.g., writeback)"
   type        = string
   default     = "writeback"
+  
 }
 
 variable "disk_storage" {

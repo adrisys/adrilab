@@ -61,3 +61,8 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
   ciuser     = var.ciuser
   cipassword = var.cipassword
 }
+
+output "name" {
+  value = proxmox_vm_qemu.cloudinit_vm.*.name
+  
+}

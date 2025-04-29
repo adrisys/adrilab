@@ -1,23 +1,28 @@
-# resource "proxmox_lxc" "lxc-test" {
-#     features {
-#         nesting = true
-#     }
-#     hostname = "terraform-new-container"
-#     network {
-#         name = "eth0"
-#         bridge = "vmbr0"
-#         ip = "dhcp"
-#         ip6 = "dhcp"
-#         tag = var.network_tag
-#     }
-#     ostemplate = var.ostemplate
-#     password = "rootroot"
-#     rootfs {
-#     storage = "local-lvm"
-#     size    = "8G"
-#     }
-#     target_node = "pve"
-#     unprivileged = true
+module "my_lxc_containers" {
+  source = "../modules/proxmox_lxc"
 
-#     ssh_public_keys = file("${path.module}/adrilab.pub")
+  lxc_count       = var.lxc_count
+  lxc_hostname    = var.lxc_hostname
+  lxc_network_bridge = var.lxc_network_bridge
+  lxc_network_ip  = var.lxc_network_ip
+  lxc_network_ip6 = var.lxc_network_ip6
+  lxc_network_tag = var.lxc_network_tag
+  lxc_ostemplate  = var.lxc_ostemplate
+  lxc_password    = var.lxc_password
+  lxc_rootfs_storage = var.lxc_rootfs_storage
+  lxc_rootfs_size = var.lxc_rootfs_size
+  target_node     = var.target_node
+  unprivileged    = true
+  nesting         = true
+  ssh_public_keys = file("${path.module}/adrilab.pub")
+}
+
+# output "lxc_hostnames" {
+#   description = "Hostnames of the created LXC containers"
+#   value       = module.my_lxc_containers.lxc_hostnames
+# }
+
+# output "lxc_ips" {
+#   description = "IPv4 addresses of the created LXC containers"
+#   value       = module.my_lxc_containers.lxc_ips
 # }

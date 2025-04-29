@@ -1,4 +1,5 @@
-vm_count       = 3
+#vms
+vm_count       = 0
 vm_name        = "cloudinit-test"
 vm_description = "A test VM with cloud-init configured"
 target_node    = "pve"
@@ -23,3 +24,19 @@ ipconfig0      = "ip=dhcp"
 ciuser         = "adri"
 cipassword     = "adri"
 ssh_public_key = ""
+
+
+#lxc
+lxc_count      = 0
+lxc_ostemplate = "local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+lxc_hostname   = "terraform-new-lxc"
+
+lxc_network_bridge = "vmbr0"
+lxc_network_ip     = "dhcp"
+lxc_network_ip6    = "dhcp"
+lxc_disk_size      = "8G"
+lxc_password = "adriadri"
+lxc_disk_storage = "local-lvm"
+lxc_network_tag = 50
+lxc_rootfs_size = "8G"
+lxc_rootfs_storage = "local-lvm"

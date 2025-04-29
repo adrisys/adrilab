@@ -1,87 +1,35 @@
-# resource "proxmox_vm_qemu" "cloudinit_vm" {
-#   count       = var.vm_count
-#   name        = "${var.vm_name}-${count.index + 1}"
-#   desc        = var.vm_description
-#   target_node = var.target_node
-#   clone       = var.clone_template
-
-#   agent   = 1
-#   os_type = "cloud-init"
-#   cores   = var.cores
-#   sockets = var.sockets
-#   vcpus   = var.vcpus
-#   memory  = var.memory
-#   scsihw  = "virtio-scsi-pci"
-
-#   disks {
-#     ide {
-#       ide2 {
-#         cloudinit {
-#           storage = var.cloudinit_storage
-#         }
-#       }
-#     }
-#     scsi {
-#       scsi0 {
-#         disk {
-#           size      = var.disk_size
-#           cache     = var.disk_cache
-#           storage   = var.disk_storage
-#           replicate = var.disk_replicate
-#         }
-#       }
-#     }
-#   }
-
-#   network {
-#     id     = 0
-#     model  = var.network_model
-#     bridge = var.network_bridge
-#     tag    = var.network_tag
-#   }
-
-#   boot      = "order=scsi0"
-#   ipconfig0 = var.ipconfig0
-#   sshkeys   = file("${path.module}/adrilab.pub")
-
-
-#   serial {
-#     id   = 0
-#     type = "socket"
-#   }
-
-#   ciuser     = var.ciuser
-#   cipassword = var.cipassword
-# }
-
-
+# Module to create Proxmox VMs using cloud-init
 module "my_vms" {
   source = "../modules/proxmox_cloudinit_vm"
 
-  vm_count       = 3
-  vm_name        = "labvm"
-  vm_description = "Cloud-init managed VM"
-  target_node    = var.target_node
-  clone_template = var.clone_template
+  # General VM configuration
+  vm_count       = var.vm_count       # Number of VMs to create
+  vm_name        = var.vm_name        # Base name for the VMs
+  vm_description = var.vm_description # Description for the VMs
+  target_node    = var.target_node    # Proxmox node where the VMs will be created
+  clone_template = var.clone_template # Template to clone for the VMs
 
-  cores   = var.cores
-  sockets = var.sockets
-  vcpus   = var.vcpus
-  memory  = var.memory
+  # CPU and memory configuration
+  cores   = var.cores   # Number of CPU cores per VM
+  sockets = var.sockets # Number of CPU sockets per VM
+  vcpus   = var.vcpus   # Number of virtual CPUs per VM
+  memory  = var.memory  # Amount of memory (in MB) per VM
 
-  cloudinit_storage = var.cloudinit_storage
-  disk_size         = var.disk_size
-  disk_cache        = var.disk_cache
-  disk_storage      = var.disk_storage
-  disk_replicate    = false
+  # Disk configuration
+  cloudinit_storage = var.cloudinit_storage # Storage for cloud-init configuration
+  disk_size         = var.disk_size         # Disk size (in GB) for the VM
+  disk_cache        = var.disk_cache        # Disk cache mode (e.g., "writeback")
+  disk_storage      = var.disk_storage      # Storage location for the VM disk
+  disk_replicate    = var.disk_replicate    # Whether to replicate the disk (true/false)
 
-  network_model  = var.network_model
-  network_bridge = var.network_bridge
-  network_tag    = var.network_tag
-  ipconfig0      = var.ipconfig0
+  # Network configuration
+  network_model  = var.network_model  # Network model (e.g., "virtio")
+  network_bridge = var.network_bridge # Network bridge to attach the VM to
+  network_tag    = var.network_tag    # VLAN tag for the network
+  ipconfig0      = var.ipconfig0      # IP configuration for the VM (e.g., "ip=192.168.1.100/24,gw=192.168.1.1")
 
-  ciuser         = var.ciuser
-  cipassword     = var.cipassword
-  ssh_public_key = file("${path.module}/adrilab.pub")
-
+  # Cloud-init user configuration
+  ciuser         = var.ciuser                         # Username for the VM
+  cipassword     = var.cipassword                     # Password for the VM user
+  ssh_public_key = file("${path.module}/adrilab.pub") # Path to the SSH public key file
 }

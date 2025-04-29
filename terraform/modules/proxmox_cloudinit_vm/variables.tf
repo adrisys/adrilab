@@ -65,7 +65,7 @@ variable "disk_cache" {
   description = "Disk cache mode (e.g., writeback)"
   type        = string
   default     = "writeback"
-  
+
 }
 
 variable "disk_storage" {

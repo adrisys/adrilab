@@ -29,12 +29,18 @@ variable "lxc_network_tag" {
   default     = 0
 }
 
+variable "lxc_gateway" {
+  description = "Gateway for the LXC container"
+  type        = string
+  default     = "10.50.0.1"
+}
+
 variable "lxc_ostemplate" {
   description = "Path to the OS template for the LXC container"
   type        = string
   default     = "local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 
-  }
+}
 
 variable "lxc_password" {
   description = "Root password for the LXC container"
@@ -92,7 +98,7 @@ variable "lxc_rootfs_size" {
   description = "Size of the root filesystem (e.g., '8G')"
   type        = string
   default     = "8G"
-  
+
 }
 
 variable "ssh_public_keys" {

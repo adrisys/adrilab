@@ -18,8 +18,8 @@ disk_replicate    = true
 network_model  = "virtio"
 network_bridge = "vmbr0"
 network_tag    = 50
+ipconfig0      = "ip=dhcp"
 
-ipconfig0 = "ip=dhcp"
-
-ciuser     = "adri"
-cipassword = "adri"
+ciuser         = "adri"
+cipassword     = "adri"
+ssh_public_key = ""

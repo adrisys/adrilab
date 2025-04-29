@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "telmate/proxmox"
+      version = "3.0.1-rc8"
+    }
+  }
+}
+
 resource "proxmox_vm_qemu" "cloudinit_vm" {
   count       = var.vm_count
   name        = "${var.vm_name}-${count.index + 1}"
@@ -21,6 +30,7 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
         }
       }
     }
+
     scsi {
       scsi0 {
         disk {
@@ -42,9 +52,7 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
 
   boot      = "order=scsi0"
   ipconfig0 = var.ipconfig0
-  sshkeys   = file("${path.module}/adrilab.pub")
-
-
+  sshkeys   = var.ssh_public_key
   serial {
     id   = 0
     type = "socket"

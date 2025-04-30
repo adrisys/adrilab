@@ -51,7 +51,7 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
   }
 
   boot      = "order=scsi0"
-  ipconfig0 = var.ipconfig0
+  ipconfig0   = "ip=${var.ip_base}.${var.ip_start + count.index}/${var.ip_netmask},gw=${var.ip_gateway}"
   sshkeys   = var.ssh_public_key
   serial {
     id   = 0

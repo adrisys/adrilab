@@ -16,22 +16,26 @@ variable "disk_replicate" {}
 variable "network_model" {}
 variable "network_bridge" {}
 variable "network_tag" {}
-variable "ipconfig0" {}
 variable "ciuser" {}
 variable "cipassword" {}
 variable "ssh_public_key" {}
+variable "ip_base" {}
+variable "ip_start" {}
+variable "ip_netmask" {}
+variable "ip_gateway" {}
+
 
 #lxc
-variable "lxc_count" {}
-variable "lxc_hostname" {}
-variable "lxc_network_bridge" {}
-variable "lxc_network_ip" {}
-variable "lxc_network_ip6" {}
-variable "lxc_gateway" {}
-variable "lxc_network_tag" {}
-variable "lxc_ostemplate" {}
-variable "lxc_password" {}
-variable "lxc_disk_storage" {}
-variable "lxc_disk_size" {}
-variable "lxc_rootfs_storage" {}
-variable "lxc_rootfs_size" {}
+# variable "lxc_count" {}
+# variable "lxc_hostname" {}
+# variable "lxc_network_bridge" {}
+# variable "lxc_network_ip" {}
+# variable "lxc_network_ip6" {}
+# variable "lxc_gateway" {}
+# variable "lxc_network_tag" {}
+# variable "lxc_ostemplate" {}
+# variable "lxc_password" {}
+# variable "lxc_disk_storage" {}
+# variable "lxc_disk_size" {}
+# variable "lxc_rootfs_storage" {}
+# variable "lxc_rootfs_size" {}

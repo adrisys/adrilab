@@ -1,5 +1,5 @@
 # Module to create Proxmox VMs using cloud-init
-module "my_vms" {
+module "proxmox_vm_qemu" {
   source = "../modules/proxmox_cloudinit_vm"
 
   vm_count       = var.vm_count
@@ -22,13 +22,16 @@ module "my_vms" {
   network_model  = var.network_model
   network_bridge = var.network_bridge
   network_tag    = var.network_tag
-  ipconfig0      = var.ipconfig0
+
+# Use an IP address with an incrementing last octet based on count
+  ip_base      = "10.0.50"    # Base IP (first three octets)
+  ip_start     = 10           # Starting value for the last octet
+  ip_netmask   = "24"         # Subnet mask
+  ip_gateway   = "10.0.50.1"  # Gateway IP
+
+  ipconfig0      = "ip=10.0.50.10/24,gw=10.0.50.1"
 
   ciuser         = var.ciuser
   cipassword     = var.cipassword
   ssh_public_key = file("${path.module}/adrilab.pub")
-}
-
-output "vm_ips" {
-  value = module.my_vms.vm_ips
 }

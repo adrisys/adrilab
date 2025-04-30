@@ -49,6 +49,8 @@ variable "memory" {
   default     = 2048
 }
 
+
+
 variable "cloudinit_storage" {
   description = "Storage for cloud-init disk"
   type        = string
@@ -118,4 +120,28 @@ variable "cipassword" {
 variable "ssh_public_key" {
   description = "The public SSH key to inject into the VM"
   type        = string
+}
+
+variable "ip_base" {
+  description = "Base IP address (first three octets)"
+  type        = string
+  default     = "10.0.50"
+}
+
+variable "ip_start" {
+  description = "Starting value for the last octet of IP addresses"
+  type        = number
+  default     = 10
+}
+
+variable "ip_netmask" {
+  description = "Subnet mask for IP addresses"
+  type        = string
+  default     = "24"
+}
+
+variable "ip_gateway" {
+  description = "Gateway IP address"
+  type        = string
+  default     = "10.0.50.1"
 }

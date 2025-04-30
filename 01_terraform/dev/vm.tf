@@ -29,8 +29,6 @@ module "proxmox_vm_qemu" {
   ip_netmask   = "24"         # Subnet mask
   ip_gateway   = "10.0.50.1"  # Gateway IP
 
-  ipconfig0      = "ip=10.0.50.10/24,gw=10.0.50.1"
-
   ciuser         = var.ciuser
   cipassword     = var.cipassword
   ssh_public_key = file("${path.module}/adrilab.pub")

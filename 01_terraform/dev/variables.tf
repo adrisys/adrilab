@@ -23,7 +23,7 @@ variable "ip_base" {}
 variable "ip_start" {}
 variable "ip_netmask" {}
 variable "ip_gateway" {}
-
+variable "tags" {}
 
 #lxc
 # variable "lxc_count" {}

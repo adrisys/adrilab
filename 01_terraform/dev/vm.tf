@@ -23,13 +23,14 @@ module "proxmox_vm_qemu" {
   network_bridge = var.network_bridge
   network_tag    = var.network_tag
 
-# Use an IP address with an incrementing last octet based on count
-  ip_base      = "10.0.50"    # Base IP (first three octets)
-  ip_start     = 10           # Starting value for the last octet
-  ip_netmask   = "24"         # Subnet mask
-  ip_gateway   = "10.0.50.1"  # Gateway IP
+  # Use an IP address with an incrementing last octet based on count
+  ip_base    = "10.0.50"   # Base IP (first three octets)
+  ip_start   = 10          # Starting value for the last octet
+  ip_netmask = "24"        # Subnet mask
+  ip_gateway = "10.0.50.1" # Gateway IP
 
   ciuser         = var.ciuser
   cipassword     = var.cipassword
   ssh_public_key = file("${path.module}/adrilab.pub")
+  tags           = var.tags
 }

@@ -41,12 +41,12 @@ disk_replicate    = true
 network_model  = "virtio"
 network_bridge = "vmbr0"
 network_tag    = 50
-ip_base      = "10.0.50"    # Base IP (first three octets)
-ip_start     = 10           # Starting value for the last octet
-ip_netmask   = "24"         # Subnet mask
-ip_gateway   = "10.0.50.1"  # Gateway IP
+ip_base        = "10.0.50"   # Base IP (first three octets)
+ip_start       = 10          # Starting value for the last octet
+ip_netmask     = "24"        # Subnet mask
+ip_gateway     = "10.0.50.1" # Gateway IP
 
 ciuser         = "adri"
 cipassword     = "adri"
 ssh_public_key = ""
-
+tags           = ["dev"]

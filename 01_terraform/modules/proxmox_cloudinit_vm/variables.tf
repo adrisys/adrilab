@@ -145,3 +145,9 @@ variable "ip_gateway" {
   type        = string
   default     = "10.0.50.1"
 }
+
+variable "tags" {
+  description = "Tags for the VM"
+  type        = list(string)
+  default     = []
+}

@@ -21,6 +21,7 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
   vcpus   = var.vcpus
   memory  = var.memory
   scsihw  = "virtio-scsi-pci"
+  tags    = join(",", var.tags)  # Convert list to comma-separated string
 
   disks {
     ide {

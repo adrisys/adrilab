@@ -4,3 +4,16 @@
     - name: Ensure common packages are installed
       include_role:
         name: common
+- name: Uninstall MicroK8s manually
+  hosts: all
+  become: true
+  tasks:
+    - name: Remove MicroK8s snap
+      ansible.builtin.snap:
+        name: microk8s
+        state: absent
+
+    - name: Delete MicroK8s group
+      ansible.builtin.group:
+        name: microk8s
+        state: absent

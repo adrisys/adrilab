@@ -4,6 +4,25 @@
       - git
       - curl
       - vim
+      - htop
+      - net-tools
+      - wget
+      - unzip
+      - python3
+      - python3-pip
+      - python3-venv
+      - build-essential
+      - libssl-dev
+      - libffi-dev
+      - python3-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - zlib1g-dev
+      - libjpeg-dev
+      - libpq-dev
+      - libmysqlclient-dev
+      - libsqlite3-dev
+      - libldap2-dev
     state: present
 
 - name: Ensure NTP is installed

@@ -1,0 +1,16 @@
+# handlers for common role
+
+- name: restart service
+  service:
+    name: "{{ service_name }}"
+    state: restarted
+
+- name: reload service
+  service:
+    name: "{{ service_name }}"
+    state: reloaded
+
+- name: restart ntp
+  service:
+    name: ntp
+    state: restarted

@@ -1,0 +1,28 @@
+- name: Ensure common packages are installed
+  apt:
+    name:
+      - git
+      - curl
+      - vim
+    state: present
+
+- name: Ensure NTP is installed
+  apt:
+    name: ntp
+    state: present
+
+- name: Start and enable NTP service
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+
+- name: Create example file
+  copy:
+    src: example.txt
+    dest: /tmp/example.txt
+
+- name: Ensure the latest updates are installed
+  apt:
+    upgrade: dist
+    update_cache: yes

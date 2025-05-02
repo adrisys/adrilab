@@ -1,0 +1,6 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Ensure common packages are installed
+      include_role:
+        name: common

@@ -6,7 +6,7 @@ module "semaphore_vm_qemu" {
   vm_name        = "semaphore"
   vm_description = "Semaphore CI/CD"
   target_node    = "pve"
-  clone_template =  "ubuntu-template-24.04-LTS"
+  clone_template = "ubuntu-template-24.04-LTS"
 
   cores   = 2
   sockets = 1
@@ -29,8 +29,9 @@ module "semaphore_vm_qemu" {
   ip_netmask = "24"        # Subnet mask
   ip_gateway = "10.0.70.1" # Gateway IP
 
-  ciuser         = "adri"
-  cipassword     = "adri"
-  ssh_public_key = file("${path.module}/adrilab.pub")
+  ciuser     = "adri"
+  cipassword = "adri"
+
+  ssh_public_key = ""
   tags           = ["servers"]
 }

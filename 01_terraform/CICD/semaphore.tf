@@ -25,13 +25,13 @@ module "semaphore_vm_qemu" {
 
   # Use an IP address with an incrementing last octet based on count
   ip_base    = "10.0.70"   # Base IP (first three octets)
-  ip_start   = 10          # Starting value for the last octet
+  ip_start   = 20          # Starting value for the last octet
   ip_netmask = "24"        # Subnet mask
   ip_gateway = "10.0.70.1" # Gateway IP
 
   ciuser     = "adri"
   cipassword = "adri"
 
-  ssh_public_key = ""
+  ssh_public_key = file("${path.module}/adrilab.pub")
   tags           = ["servers"]
 }

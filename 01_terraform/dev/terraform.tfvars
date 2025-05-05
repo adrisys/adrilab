@@ -47,6 +47,6 @@ ip_netmask     = "24"        # Subnet mask
 ip_gateway     = "10.0.50.1" # Gateway IP
 
 ciuser         = "adri"
-cipassword     = "adri"
+cipassword     = ""
 ssh_public_key = ""
 tags           = ["dev"]

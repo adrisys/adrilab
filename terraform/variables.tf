@@ -193,17 +193,82 @@ variable "tags" {
   type        = list(string)
 }
 
-#lxc
-# variable "lxc_count" {}
-# variable "lxc_hostname" {}
-# variable "lxc_network_bridge" {}
-# variable "lxc_network_ip" {}
-# variable "lxc_network_ip6" {}
-# variable "lxc_gateway" {}
-# variable "lxc_network_tag" {}
-# variable "lxc_ostemplate" {}
-# variable "lxc_password" {}
-# variable "lxc_disk_storage" {}
-# variable "lxc_disk_size" {}
-# variable "lxc_rootfs_storage" {}
-# variable "lxc_rootfs_size" {}
+# ==============================================================================
+# LXC CONTAINER CONFIGURATION
+# ==============================================================================
+
+variable "lxc_count" {
+  description = "Number of LXC containers to create"
+  type        = number
+  default     = 1
+}
+
+variable "lxc_hostname" {
+  description = "Base hostname for the LXC containers"
+  type        = string
+  default     = "lxc-container"
+}
+
+variable "lxc_network_bridge" {
+  description = "Network bridge to attach the LXC container to"
+  type        = string
+  default     = "vmbr0"
+}
+
+variable "lxc_network_ip" {
+  description = "IPv4 address for the LXC container (use 'dhcp' for dynamic IP)"
+  type        = string
+  default     = "dhcp"
+}
+
+variable "lxc_network_ip6" {
+  description = "IPv6 address for the LXC container (use 'dhcp' for dynamic IP)"
+  type        = string
+  default     = "dhcp"
+}
+
+variable "lxc_gateway" {
+  description = "Gateway for the LXC container"
+  type        = string
+}
+
+variable "lxc_network_tag" {
+  description = "VLAN tag for the network interface"
+  type        = number
+}
+
+variable "lxc_ostemplate" {
+  description = "Path to the OS template for the LXC container"
+  type        = string
+  default     = "local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
+}
+
+variable "lxc_password" {
+  description = "Root password for the LXC container"
+  type        = string
+  sensitive   = true
+}
+
+variable "lxc_rootfs_storage" {
+  description = "Storage location for the root filesystem"
+  type        = string
+  default     = "local-lvm"
+}
+
+variable "lxc_rootfs_size" {
+  description = "Size of the root filesystem (e.g., '8G')"
+  type        = string
+  default     = "8G"
+}
+
+variable "unprivileged" {
+  description = "Whether the LXC container is unprivileged"
+  type        = bool
+  default     = true
+}
+
+variable "nesting" {
+  description = "Enable nesting for the LXC container"
+  type        = bool
+  default     = true
+}

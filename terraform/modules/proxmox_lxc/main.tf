@@ -14,7 +14,7 @@ terraform {
 # LXC Container Resource
 resource "proxmox_lxc" "container" {
   count        = var.lxc_count
-  hostname     = "${var.lxc_hostname}-${count.index + 1}"
+  hostname     = var.lxc_count > 1 ? "${var.lxc_hostname}-${count.index + 1}" : var.lxc_hostname
   target_node  = var.target_node
   ostemplate   = var.lxc_ostemplate
   password     = var.lxc_password
@@ -43,4 +43,7 @@ resource "proxmox_lxc" "container" {
 
   # SSH Access
   ssh_public_keys = var.ssh_public_keys
+  
+  # Tags
+  tags = join(",", var.tags)
 }

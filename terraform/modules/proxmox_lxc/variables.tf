@@ -106,3 +106,13 @@ variable "ssh_public_keys" {
   description = "SSH public keys to inject into the LXC container"
   type        = string
 }
+
+# ------------------------------------------------------------------------------
+# Metadata
+# ------------------------------------------------------------------------------
+
+variable "tags" {
+  description = "Tags to apply to the LXC container"
+  type        = list(string)
+  default     = []
+}

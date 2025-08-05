@@ -15,13 +15,13 @@
 name: 🏗️ Terraform Infrastructure
 
 on:
-  pull_request:
-    branches: [main]
-    paths: ['terraform/**']
+  # pull_request:
+  #   branches: [main]
+  #   paths: ['terraform/**']
   
-  push:
-    branches: [main]
-    paths: ['terraform/**']
+  # push:
+  #   branches: [main]
+  #   paths: ['terraform/**']
 
   workflow_dispatch:
     inputs:

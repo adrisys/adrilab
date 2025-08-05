@@ -1,13 +1,13 @@
 name: ⚙️ Ansible Configuration
 
 on:
-  pull_request:
-    branches: [main]
-    paths: ['ansible/**']
+  # pull_request:
+  #   branches: [main]
+  #   paths: ['ansible/**']
   
-  push:
-    branches: [main]
-    paths: ['ansible/**']
+  # push:
+  #   branches: [main]
+  #   paths: ['ansible/**']
 
   workflow_dispatch:
     inputs:

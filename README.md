@@ -1,5 +1,7 @@
 # 🧪 AdriLab — Homelab Configuration Repository
 
+[![🏗️ Terraform Infrastructure](https://github.com/adrisys/adrilab/actions/workflows/terraform.yml/badge.svg?branch=main)](https://github.com/adrisys/adrilab/actions/workflows/terraform.yml)
+
 Welcome to **AdriLab**, my **production homelab** infrastructure repository. This is the actual configuration I use daily to manage my homelab environment, which I've decided to open-source and share with the community to demonstrate real-world best practices for homelab infrastructure management.
 
 This repository showcases practical Infrastructure as Code patterns using **Proxmox**, **Kubernetes** (via Kubespray), **Terraform**, **Ansible**, and containerized applications. All sensitive information has been carefully removed or templated to protect privacy while maintaining the educational value of the configurations.

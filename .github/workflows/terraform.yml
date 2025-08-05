@@ -99,11 +99,11 @@ jobs:
           TF_VAR_ciuser: ${{ secrets.CI_USER }}
           TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
         run: |
-          # Generate plan and capture output
-          terraform plan -out=tfplan -no-color | tee plan_output.txt
+          # Generate plan without logging output
+          terraform plan -out=tfplan -no-color > /dev/null
           
           # Set exit code based on plan result
-          PLAN_EXIT_CODE=${PIPESTATUS[0]}
+          PLAN_EXIT_CODE=$?
           
           if [ $PLAN_EXIT_CODE -eq 0 ]; then
             echo "✅ Terraform plan completed successfully"
@@ -117,39 +117,11 @@ jobs:
             exit $PLAN_EXIT_CODE
           fi
 
-      - name: 💾 Upload Plan Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan-${{ github.run_number }}
-          path: |
-            ${{ env.WORKING_DIR }}/tfplan
-            ${{ env.WORKING_DIR }}/plan_output.txt
-          retention-days: 30
-
       - name: 💬 Comment Plan on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const path = require('path');
-            
-            // Read the plan output
-            const planOutputPath = path.join('${{ env.WORKING_DIR }}', 'plan_output.txt');
-            let planOutput = '';
-            
-            try {
-              planOutput = fs.readFileSync(planOutputPath, 'utf8');
-            } catch (error) {
-              planOutput = 'Could not read plan output file.';
-            }
-            
-            // Truncate plan if too long (GitHub comment limit is ~65536 chars)
-            const maxLength = 60000;
-            if (planOutput.length > maxLength) {
-              planOutput = planOutput.substring(0, maxLength) + '\n\n... (truncated - see full plan in artifacts)';
-            }
-            
             const planStatus = '${{ steps.plan.outputs.PLAN_STATUS }}';
             let statusIcon = '✅';
             let statusText = 'Plan completed successfully';
@@ -166,19 +138,10 @@ jobs:
             
             **Status:** ${statusIcon} ${statusText}
             
-            <details>
-            <summary>🔍 Click to view plan details</summary>
-            
-            \`\`\`terraform
-            ${planOutput}
-            \`\`\`
-            
-            </details>
-            
             ---
             *Triggered by: ${context.actor} • Commit: ${context.sha.substring(0, 8)}*
             
-            📦 Full plan available in [workflow artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            � Plan details are not displayed for security reasons (public repository)`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -229,10 +192,10 @@ jobs:
           TF_VAR_ciuser: ${{ secrets.CI_USER }}
           TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
         run: |
-          terraform plan -out=tfplan
+          terraform plan -out=tfplan -no-color > /dev/null
           
           echo "## 📋 Pre-Apply Plan Review"
-          terraform show -no-color tfplan
+          echo "Plan generated successfully (details hidden for security)"
           
           echo ""
           echo "⚠️  **DEPLOYMENT STARTING IN 15 SECONDS**"

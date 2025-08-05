@@ -7,13 +7,15 @@ module "proxmox_lxc_container" {
   source = "./modules/proxmox_lxc"
 
   # Container Configuration
-  lxc_count     = 1
-  lxc_hostname  = var.lxc_hostname
-  target_node   = var.target_node
+  lxc_count      = 1
+  lxc_hostname   = var.lxc_hostname
+  target_node    = var.target_node
   lxc_ostemplate = var.lxc_ostemplate
-  lxc_password  = var.lxc_password
-  unprivileged  = var.unprivileged
-  nesting       = var.nesting
+  lxc_password   = var.lxc_password
+  unprivileged   = var.unprivileged
+  nesting        = var.nesting
+  lxc_cores      = var.lxc_cores
+  lxc_memory     = var.lxc_memory
 
   # Storage Configuration
   lxc_rootfs_storage = var.lxc_rootfs_storage
@@ -28,6 +30,6 @@ module "proxmox_lxc_container" {
 
   # Authentication & Access
   ssh_public_keys = var.ssh_public_key
-  tags = var.tags
+  tags            = var.tags
 
 }

@@ -272,3 +272,15 @@ variable "nesting" {
   type        = bool
   default     = true
 }
+
+variable "lxc_cores" {
+  description = "Number of CPU cores to allocate to the LXC container"
+  type        = number
+  default     = 1
+}
+
+variable "lxc_memory" {
+  description = "Amount of memory in MB to allocate to the LXC container"
+  type        = number
+  default     = 512
+}

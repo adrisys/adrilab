@@ -20,6 +20,10 @@ resource "proxmox_lxc" "container" {
   password     = var.lxc_password
   unprivileged = var.unprivileged
 
+  # Resource Configuration
+  cores  = var.lxc_cores
+  memory = var.lxc_memory
+
   # Container Features
   features {
     nesting = var.nesting
@@ -43,7 +47,7 @@ resource "proxmox_lxc" "container" {
 
   # SSH Access
   ssh_public_keys = var.ssh_public_keys
-  
+
   # Tags
   tags = join(",", var.tags)
 }

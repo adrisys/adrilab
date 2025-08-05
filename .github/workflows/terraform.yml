@@ -98,6 +98,7 @@ jobs:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_ciuser: ${{ secrets.CI_USER }}
           TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+          TF_VAR_lxc_password: ${{ secrets.LXC_PASSWORD }}
         run: |
           # Generate plan without logging output
           terraform plan -out=tfplan -no-color > /dev/null
@@ -191,6 +192,7 @@ jobs:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_ciuser: ${{ secrets.CI_USER }}
           TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+          TF_VAR_lxc_password: ${{ secrets.LXC_PASSWORD }}
         run: |
           terraform plan -out=tfplan -no-color > /dev/null
           
@@ -215,6 +217,7 @@ jobs:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_ciuser: ${{ secrets.CI_USER }}
           TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+          TF_VAR_lxc_password: ${{ secrets.LXC_PASSWORD }}
         run: |
           terraform apply -auto-approve tfplan
           echo ""
@@ -232,6 +235,7 @@ jobs:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_ciuser: ${{ secrets.CI_USER }}
           TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+          TF_VAR_lxc_password: ${{ secrets.LXC_PASSWORD }}
         run: |
           {
             echo "## 🚀 Deployment Summary"

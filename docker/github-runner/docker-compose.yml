@@ -1,0 +1,19 @@
+services:
+  github-runner:
+    build: .
+    container_name: adrxlab-github-runner
+    environment:
+      - GITHUB_OWNER=adrisys
+      - GITHUB_REPO=adrilab
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - RUNNER_NAME=adrxlab-terraform-runner
+      - RUNNER_LABELS=self-hosted,terraform,ansible,proxmox,docker
+      # Note: AWS and Proxmox credentials are now handled via GitHub Secrets
+      # and passed to workflows at runtime for better security
+    volumes:
+      # Mount a directory for persistent runner data with proper permissions
+      - ./runner-data:/home/runner/_work:rw
+    restart: unless-stopped
+    # Removed network_mode: host - now using default bridge networking for better security
+    # Removed docker socket mount - not needed for Terraform-only workflows
+    user: "1000:1000"  # Run as user ID 1000 (standard for runner user)

@@ -1,0 +1,32 @@
+- name: Ensure common packages are installed
+  ansible.builtin.apt:
+    name:
+      - vim
+      - htop
+      - net-tools
+      - wget
+      - unzip
+    state: present
+
+- name: Ensure PermitRootLogin is set to prohibit-password (allows root via key only)
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin prohibit-password'
+    state: present
+    backup: true
+  notify: Restart SSH
+
+
+- name: Disable SSH challenge-response authentication (extra precaution)
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^ChallengeResponseAuthentication'
+    line: 'ChallengeResponseAuthentication no'
+    state: present
+  notify: Restart SSH
+
+- name: Ensure the latest updates are installed
+  ansible.builtin.apt:
+    upgrade: true
+    update_cache: true

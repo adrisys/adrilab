@@ -1,0 +1,59 @@
+all:
+  vars:
+    ansible_user: your_username
+    ansible_ssh_private_key_file: ~/.ssh/your_private_key
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    ansible_python_interpreter: /usr/bin/python3
+
+  children:
+    k8s_cluster:
+      vars:
+        ansible_ssh_private_key_file: ~/.ssh/your_private_key
+      hosts:
+        k8s-control-1:
+          ansible_host: 192.168.1.10
+        k8s-worker-1:
+          ansible_host: 192.168.1.11
+        k8s-worker-2:
+          ansible_host: 192.168.1.12
+
+    app_servers:
+      vars:
+        ansible_ssh_private_key_file: ~/.ssh/your_private_key
+      hosts:
+        app-server-1:
+          ansible_host: 192.168.2.10
+        app-server-2:
+          ansible_host: 192.168.2.11
+        service-node-1:
+          ansible_host: 192.168.2.12
+        service-node-2:
+          ansible_host: 192.168.2.13
+        database-server:
+          ansible_host: 192.168.2.14
+
+    cloud:
+      vars:
+        ansible_ssh_private_key_file: ~/.ssh/your_private_key
+      hosts:
+        cloud-pi:
+          ansible_host: 192.168.3.10
+        cloud-docker:
+          ansible_host: 192.168.3.11
+          ansible_user: root
+          ansible_ssh_private_key_file: ~/.ssh/your_private_key
+        web-server:
+          ansible_host: 192.168.3.12
+          ansible_user: root
+          ansible_ssh_private_key_file: ~/.ssh/your_private_key
+
+    mgmt:
+      vars:
+        ansible_ssh_private_key_file: ~/.ssh/your_private_key
+      hosts:
+        hypervisor:
+          ansible_host: 192.168.4.10
+          ansible_user: root
+        backup-server:
+          ansible_host: 192.168.4.11
+          ansible_user: root

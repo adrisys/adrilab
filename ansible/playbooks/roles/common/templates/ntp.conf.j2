@@ -1,0 +1,12 @@
+# NTP Configuration Template
+
+This is a Jinja2 template for the NTP configuration file.
+
+server {{ ntp_server }} iburst
+driftfile /var/lib/ntp/drift
+restrict default nomodify notrap nopeer noquery
+restrict 127.0.0.1
+restrict ::1
+fudge 127.127.1.0 stratum 10
+
+# Additional configuration options can be added here.

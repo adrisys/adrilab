@@ -1,0 +1,64 @@
+# System and OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# SSH Keys and certificates
+*.pub
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.tfstate.lock.info
+terraform/dev/.terraform.tfstate.lock.info
+terraform/.env.local
+terraform/terraform.local.tfvars
+terraform/generated-*.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# GitHub Runner
+docker/github-runner/runner-data/
+docker/github-runner/.env
+
+# Ansible
+ansible/inventory/hosts.yml

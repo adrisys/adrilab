@@ -1,0 +1,91 @@
+name: ⚙️ Ansible Configuration
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['ansible/**']
+  
+  push:
+    branches: [main]
+    paths: ['ansible/**']
+
+  workflow_dispatch:
+    inputs:
+      target_group:
+        description: 'Target host group (leave empty for all)'
+        required: false
+        default: 'all'
+        type: string
+      check_only:
+        description: 'Run in check mode only'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  ANSIBLE_HOST_KEY_CHECKING: "False"
+  ANSIBLE_FORCE_COLOR: "true"
+
+jobs:
+  validate:
+    name: Validate Ansible
+    runs-on: [self-hosted, ansible]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Validate Syntax
+        working-directory: ./ansible
+        run: ansible-playbook --syntax-check playbooks/site.yml -i inventory/hosts.yml
+      
+      - name: Lint Playbooks
+        working-directory: ./ansible
+        run: ansible-lint playbooks/site.yml
+        continue-on-error: true
+      
+      - name: Validate Inventory
+        working-directory: ./ansible
+        run: ansible-inventory -i inventory/hosts.yml --list > /dev/null
+
+  deploy:
+    name: Deploy Configuration
+    runs-on: [self-hosted, ansible]
+    needs: validate
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa      
+      - name: Run Ansible Playbook
+        working-directory: ./ansible
+        env:
+          TARGET_GROUP: ${{ github.event.inputs.target_group || 'all' }}
+          CHECK_MODE: ${{ github.event_name == 'pull_request' || github.event.inputs.check_only == 'true' }}
+        run: |
+          if [ "$CHECK_MODE" = "true" ]; then
+            ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP" --check --diff
+          else
+            ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP"
+          fi
+      
+      - name: Create Summary
+        if: always()
+        run: |
+          echo "## Ansible Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** ${{ github.event.inputs.target_group || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ github.event_name == 'pull_request' && 'Check' || 'Deploy' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

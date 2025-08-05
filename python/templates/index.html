@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ app_name }} Info</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6fa; color: #222; margin: 0; padding: 0; }
+        .container { max-width: 500px; margin: 60px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 2em; text-align: center; }
+        h1 { color: #2a7ae2; }
+        .host { color: #888; font-size: 1.1em; margin-top: 1em; }
+        .footer { margin-top: 2em; color: #bbb; font-size: 0.9em; }
+        .nav { margin-bottom: 2em; }
+        .nav a { margin: 0 10px; color: #2a7ae2; text-decoration: none; font-weight: bold; }
+        ul { text-align: left; margin: 0; padding: 0; }
+        li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/clients">Clients</a>
+            <a href="/orders">Orders</a>
+            <a href="/health">Health</a>
+        </div>
+        <h1>Welcome to <span style="color:#2a7ae2">{{ app_name }}</span>!</h1>
+        <div class="host">Host: <b>{{ pod_name }}</b></div>
+        <br>
+        <ul>
+            <li><strong>App Version:</strong> {{ version }}</li>
+            <li><strong>Pod Name:</strong> {{ pod_name }}</li>
+            <li><strong>Pod IP:</strong> {{ pod_ip }}</li>
+            <li><strong>Node Name:</strong> {{ node_name }}</li>
+            <li><strong>Node IP:</strong> {{ node_ip }}</li>
+            <li><strong>Namespace:</strong> {{ namespace }}</li>
+            <li><strong>Python Version:</strong> {{ python_version }}</li>
+            <li><strong>Flask Env:</strong> {{ flask_env }}</li>
+        </ul>
+        <div class="footer">Flask demo app &mdash; {{ year }}</div>
+    </div>
+</body>
+</html>

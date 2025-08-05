@@ -1,0 +1,8 @@
+- name: Configure all hosts with common settings
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Ensure common packages are installed
+      ansible.builtin.include_role:
+        name: common

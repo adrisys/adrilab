@@ -1,0 +1,295 @@
+# ==============================================================================
+# TERRAFORM GITHUB ACTIONS WORKFLOW
+# ==============================================================================
+# 
+# This workflow handles Terraform validation, planning, and deployment
+# for infrastructure changes in the terraform/ directory.
+# 
+# Best Practices:
+# - Separate plan and apply jobs
+# - Full plan visibility
+# - Environment protection for applies
+# - Proper error handling and status reporting
+#
+
+name: 🏗️ Terraform Infrastructure
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['terraform/**']
+  
+  push:
+    branches: [main]
+    paths: ['terraform/**']
+
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options: [plan, apply]
+
+# Least privilege permissions
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.12.1"
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  WORKING_DIR: ./terraform
+
+jobs:
+  # ==============================================================================
+  # PLAN JOB - Validation, formatting, and planning
+  # ==============================================================================
+  plan:
+    name: 📋 Terraform Plan
+    runs-on: [self-hosted, terraform]
+    if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: 🎨 Format Check
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform fmt -check -recursive
+          echo "✅ Terraform formatting is correct"
+
+      - name: 🏁 Initialize Terraform
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ secrets.TF_STATE_REGION }}"
+
+      - name: ✅ Validate Configuration
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform validate
+          echo "✅ Terraform configuration is valid"
+
+      - name: 📋 Create Plan
+        id: plan
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_pm_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_pm_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_ciuser: ${{ secrets.CI_USER }}
+          TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+        run: |
+          # Generate plan and capture output
+          terraform plan -out=tfplan -no-color | tee plan_output.txt
+          
+          # Set exit code based on plan result
+          PLAN_EXIT_CODE=${PIPESTATUS[0]}
+          
+          if [ $PLAN_EXIT_CODE -eq 0 ]; then
+            echo "✅ Terraform plan completed successfully"
+            echo "PLAN_STATUS=success" >> $GITHUB_OUTPUT
+          elif [ $PLAN_EXIT_CODE -eq 2 ]; then
+            echo "📝 Terraform plan completed with changes"
+            echo "PLAN_STATUS=changes" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Terraform plan failed"
+            echo "PLAN_STATUS=failed" >> $GITHUB_OUTPUT
+            exit $PLAN_EXIT_CODE
+          fi
+
+      - name: 💾 Upload Plan Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ github.run_number }}
+          path: |
+            ${{ env.WORKING_DIR }}/tfplan
+            ${{ env.WORKING_DIR }}/plan_output.txt
+          retention-days: 30
+
+      - name: 💬 Comment Plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read the plan output
+            const planOutputPath = path.join('${{ env.WORKING_DIR }}', 'plan_output.txt');
+            let planOutput = '';
+            
+            try {
+              planOutput = fs.readFileSync(planOutputPath, 'utf8');
+            } catch (error) {
+              planOutput = 'Could not read plan output file.';
+            }
+            
+            // Truncate plan if too long (GitHub comment limit is ~65536 chars)
+            const maxLength = 60000;
+            if (planOutput.length > maxLength) {
+              planOutput = planOutput.substring(0, maxLength) + '\n\n... (truncated - see full plan in artifacts)';
+            }
+            
+            const planStatus = '${{ steps.plan.outputs.PLAN_STATUS }}';
+            let statusIcon = '✅';
+            let statusText = 'Plan completed successfully';
+            
+            if (planStatus === 'changes') {
+              statusIcon = '📝';
+              statusText = 'Plan completed with changes';
+            } else if (planStatus === 'failed') {
+              statusIcon = '❌';
+              statusText = 'Plan failed';
+            }
+            
+            const comment = `## 📋 Terraform Plan Results
+            
+            **Status:** ${statusIcon} ${statusText}
+            
+            <details>
+            <summary>🔍 Click to view plan details</summary>
+            
+            \`\`\`terraform
+            ${planOutput}
+            \`\`\`
+            
+            </details>
+            
+            ---
+            *Triggered by: ${context.actor} • Commit: ${context.sha.substring(0, 8)}*
+            
+            📦 Full plan available in [workflow artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # ==============================================================================
+  # APPLY JOB - Infrastructure deployment
+  # ==============================================================================
+  apply:
+    name: 🚀 Terraform Apply
+    runs-on: [self-hosted, terraform]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.action == 'apply')
+    environment: production
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: 🏁 Initialize Terraform
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="region=${{ secrets.TF_STATE_REGION }}"
+
+      - name: 📋 Generate Fresh Plan
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_pm_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_pm_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_ciuser: ${{ secrets.CI_USER }}
+          TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+        run: |
+          terraform plan -out=tfplan
+          
+          echo "## 📋 Pre-Apply Plan Review"
+          terraform show -no-color tfplan
+          
+          echo ""
+          echo "⚠️  **DEPLOYMENT STARTING IN 15 SECONDS**"
+          echo "⚠️  This will modify your infrastructure!"
+          echo ""
+          sleep 15
+
+      - name: 🚀 Apply Infrastructure Changes
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_pm_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_pm_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_ciuser: ${{ secrets.CI_USER }}
+          TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+        run: |
+          terraform apply -auto-approve tfplan
+          echo ""
+          echo "🎉 Infrastructure deployment completed successfully!"
+
+      - name: 📊 Generate Deployment Summary
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
+          TF_VAR_pm_api_token_id: ${{ secrets.PM_API_TOKEN_ID }}
+          TF_VAR_pm_api_token_secret: ${{ secrets.PM_API_TOKEN_SECRET }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_ciuser: ${{ secrets.CI_USER }}
+          TF_VAR_cipassword: ${{ secrets.CI_PASSWORD }}
+        run: |
+          {
+            echo "## 🚀 Deployment Summary"
+            echo ""
+            echo "**Status:** ✅ Successfully deployed"
+            echo "**Branch:** ${{ github.ref_name }}"
+            echo "**Commit:** [\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+            echo "**Triggered by:** @${{ github.actor }}"
+            echo "**Workflow:** [\`${{ github.run_id }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo ""
+            echo "### 📈 Resource Status"
+            
+            # Try to get resource status, but handle errors gracefully
+            if terraform show -json tfplan > /tmp/tf_output.json 2>/dev/null; then
+              if jq -r '.planned_values.root_module.resources[]? | "- **\(.type).\(.name):** \(.values.id // "N/A")"' /tmp/tf_output.json 2>/dev/null | head -10; then
+                echo "Resource status retrieved successfully"
+              else
+                echo "- Resource details available in plan file"
+              fi
+            else
+              echo "- ✅ Deployment completed successfully"
+              echo "- 📋 Resource details available in Terraform state"
+            fi
+          } >> $GITHUB_STEP_SUMMARY

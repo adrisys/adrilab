@@ -34,12 +34,8 @@ jobs:
       
       - name: 📁 Copy Local Configuration
         run: |
-          # Copy the local hosts.yml from mounted volume
           if [ -f "/adrilab/ansible/inventory/hosts.yml" ]; then
             cp /adrilab/ansible/inventory/hosts.yml ./ansible/inventory/hosts.yml
-            echo "✅ Copied local hosts.yml"
-          else
-            echo "⚠️ Local hosts.yml not found, using repository version"
           fi
       
       - name: Validate Syntax
@@ -67,31 +63,24 @@ jobs:
       
       - name: 📁 Copy Local Configuration
         run: |
-          # Copy the local hosts.yml from mounted volume
           if [ -f "/adrilab/ansible/inventory/hosts.yml" ]; then
             cp /adrilab/ansible/inventory/hosts.yml ./ansible/inventory/hosts.yml
-            echo "✅ Copied local hosts.yml"
-          else
-            echo "⚠️ Local hosts.yml not found, using repository version"
           fi
       
       - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
         run: |
-          # Create SSH directory for both regular user and root
           mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          # Set up SSH keys for root user
           sudo mkdir -p /root/.ssh
+          chmod 700 ~/.ssh
           sudo chmod 700 /root/.ssh
+          
           echo "$SSH_PRIVATE_KEY" | sudo tee /root/.ssh/id_adrilab > /dev/null
           sudo chmod 600 /root/.ssh/id_adrilab
           echo "$SSH_PRIVATE_KEY" | sudo tee /root/.ssh/id_rsa > /dev/null
           sudo chmod 600 /root/.ssh/id_rsa
           
-          # Create SSH config for root
           sudo tee /root/.ssh/config > /dev/null << EOF
           Host *
               StrictHostKeyChecking no
@@ -101,13 +90,11 @@ jobs:
           EOF
           sudo chmod 600 /root/.ssh/config
           
-          # Set up for current user as well
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_adrilab
           chmod 600 ~/.ssh/id_adrilab
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-          # Create SSH config for current user
           cat > ~/.ssh/config << EOF
           Host *
               StrictHostKeyChecking no
@@ -123,10 +110,8 @@ jobs:
           CHECK_MODE: ${{ github.event.inputs.check_only == 'true' }}
         run: |
           if [ "$CHECK_MODE" = "true" ]; then
-            echo "Running in check mode..."
             ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP" --check --diff
           else
-            echo "Running in deploy mode..."
             ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP"
           fi
       

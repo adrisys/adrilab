@@ -15,7 +15,8 @@ services:
       - ./runner-data:/home/runner/_work:rw
       # Mount local configuration files (keep these files locally, don't commit to git)
       - /Users/adri/repos/adrilab/terraform/terraform.tfvars:/home/runner/terraform.tfvars:ro
-      - /Users/adri/repos/adrilab/ansible/inventory/hosts.yml:/home/runner/hosts.yml:ro
+      # Mount the hosts.yml file directly into the repository structure so Ansible can find it
+      - /Users/adri/repos/adrilab/ansible/inventory/hosts.yml:/home/runner/_work/adrilab/adrilab/ansible/inventory/hosts.yml:ro
       # Mount SSH keys for Ansible
       - ~/.ssh:/home/runner/.ssh:ro
     restart: unless-stopped

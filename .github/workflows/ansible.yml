@@ -79,40 +79,27 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
         run: |
-          # Debug: Show current user and home directory
-          echo "Current user: $(whoami)"
-          echo "Home directory: $HOME"
-          echo "Current working directory: $(pwd)"
-          
           # Create SSH directory for both regular user and root
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           
-          # If running as root or need root access, also set up /root/.ssh
-          if [ "$(whoami)" = "root" ] || [ -w "/root" ] 2>/dev/null; then
-            echo "Setting up SSH keys for root user"
-            sudo mkdir -p /root/.ssh
-            sudo chmod 700 /root/.ssh
-            echo "$SSH_PRIVATE_KEY" | sudo tee /root/.ssh/id_adrilab > /dev/null
-            sudo chmod 600 /root/.ssh/id_adrilab
-            echo "$SSH_PRIVATE_KEY" | sudo tee /root/.ssh/id_rsa > /dev/null
-            sudo chmod 600 /root/.ssh/id_rsa
-            
-            # Create SSH config for root
-            sudo tee /root/.ssh/config > /dev/null << EOF
+          # Set up SSH keys for root user
+          sudo mkdir -p /root/.ssh
+          sudo chmod 700 /root/.ssh
+          echo "$SSH_PRIVATE_KEY" | sudo tee /root/.ssh/id_adrilab > /dev/null
+          sudo chmod 600 /root/.ssh/id_adrilab
+          echo "$SSH_PRIVATE_KEY" | sudo tee /root/.ssh/id_rsa > /dev/null
+          sudo chmod 600 /root/.ssh/id_rsa
+          
+          # Create SSH config for root
+          sudo tee /root/.ssh/config > /dev/null << EOF
           Host *
               StrictHostKeyChecking no
               UserKnownHostsFile /dev/null
               IdentitiesOnly yes
               IdentityFile /root/.ssh/id_adrilab
           EOF
-            sudo chmod 600 /root/.ssh/config
-            
-            echo "Root SSH setup completed:"
-            sudo ls -la /root/.ssh/
-          else
-            echo "Setting up SSH keys for current user"
-          fi
+          sudo chmod 600 /root/.ssh/config
           
           # Set up for current user as well
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_adrilab
@@ -129,90 +116,26 @@ jobs:
               IdentityFile ~/.ssh/id_adrilab
           EOF
           chmod 600 ~/.ssh/config
-          
-          # Debug: Show SSH key files
-          echo "Current user SSH setup:"
-          ls -la ~/.ssh/
-          
-          # Test SSH key format
-          echo "Testing SSH key format:"
-          ssh-keygen -l -f ~/.ssh/id_adrilab || echo "Warning: SSH key format check failed"
-          
-          # Check if secret is properly set
-          if [ -z "$SSH_PRIVATE_KEY" ]; then
-            echo "ERROR: SSH_PRIVATE_KEY secret is empty or not set!"
-            exit 1
-          else
-            echo "SSH_PRIVATE_KEY secret is set (length: ${#SSH_PRIVATE_KEY})"
-          fi
-          
-          # Create symlinks for additional fallback paths
-          if [ -f "/root/.ssh/id_adrilab" ]; then
-            sudo ln -sf /root/.ssh/id_adrilab /root/.ssh/id_rsa 2>/dev/null || true
-          fi
-          
-          # Verify final SSH key setup
-          echo "=== Final SSH Key Verification ==="
-          if [ -f "/root/.ssh/id_adrilab" ]; then
-            echo "✅ /root/.ssh/id_adrilab exists"
-            sudo ls -la /root/.ssh/id_adrilab
-          else
-            echo "❌ /root/.ssh/id_adrilab does NOT exist"
-          fi
       
       - name: Test Connectivity
         working-directory: ./ansible
         env:
           TARGET_GROUP: ${{ github.event.inputs.target_group || 'all' }}
         run: |
-          echo "=== SSH Debug Information ==="
-          echo "Current user: $(whoami)"
-          echo "SSH keys available:"
-          ls -la ~/.ssh/ 2>/dev/null || echo "No ~/.ssh directory"
-          sudo ls -la /root/.ssh/ 2>/dev/null || echo "No /root/.ssh directory"
-          
-          echo "=== Ansible Configuration ==="
-          ansible --version
-          echo "Ansible config:"
-          ansible-config dump --only-changed 2>/dev/null || echo "No custom config"
-          
-          echo "=== Inventory Information ==="
-          echo "Available hosts:"
-          ansible-inventory -i inventory/hosts.yml --limit "$TARGET_GROUP" --list
-          
-          echo "=== Environment Variables ==="
-          env | grep -i ansible || echo "No ANSIBLE environment variables set"
-          
-          echo "=== Testing connectivity to hosts ==="
-          echo "Testing with ping module (verbose)..."
-          # Try with explicit SSH key specification
-          ansible all -i inventory/hosts.yml --limit "$TARGET_GROUP" \
-            --private-key /root/.ssh/id_adrilab \
-            -e ansible_ssh_private_key_file=/root/.ssh/id_adrilab \
-            -m ping -vvv || echo "Ping test with explicit key failed"
-          
-          echo "Testing with default configuration..."
-          ANSIBLE_SSH_ARGS="-vvv" ansible all -i inventory/hosts.yml --limit "$TARGET_GROUP" -m ping -vvv || echo "Ping test completed with errors"      
+          echo "Testing connectivity to hosts..."
+          ansible all -i inventory/hosts.yml --limit "$TARGET_GROUP" -m ping || echo "Some hosts unreachable"      
       - name: Run Ansible Playbook
         working-directory: ./ansible
         env:
           TARGET_GROUP: ${{ github.event.inputs.target_group || 'all' }}
           CHECK_MODE: ${{ github.event.inputs.check_only == 'true' }}
         run: |
-          echo "Running playbook with the following parameters:"
-          echo "Target Group: $TARGET_GROUP"
-          echo "Check Mode: $CHECK_MODE"
-          
-          # Show inventory for debugging
-          echo "Available hosts in inventory:"
-          ansible-inventory -i inventory/hosts.yml --list --yaml
-          
           if [ "$CHECK_MODE" = "true" ]; then
             echo "Running in check mode..."
-            ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP" --check --diff -v
+            ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP" --check --diff
           else
             echo "Running in deploy mode..."
-            ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP" -v
+            ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP"
           fi
       
       - name: Create Summary
@@ -223,12 +146,3 @@ jobs:
           echo "**Mode:** ${{ github.event.inputs.check_only == 'true' && 'Check' || 'Deploy' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "${{ job.status }}" != "success" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Troubleshooting Tips" >> $GITHUB_STEP_SUMMARY
-            echo "- Verify SSH key is correctly configured in secrets" >> $GITHUB_STEP_SUMMARY
-            echo "- Check if target hosts are reachable from runner" >> $GITHUB_STEP_SUMMARY
-            echo "- Ensure SSH key matches the one on target hosts" >> $GITHUB_STEP_SUMMARY
-            echo "- Verify inventory configuration is correct" >> $GITHUB_STEP_SUMMARY
-          fi

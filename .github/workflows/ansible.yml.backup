@@ -1,6 +1,14 @@
 name: ⚙️ Ansible Configuration
 
 on:
+  # pull_request:
+  #   branches: [main]
+  #   paths: ['ansible/**']
+  
+  # push:
+  #   branches: [main]
+  #   paths: ['ansible/**']
+
   workflow_dispatch:
     inputs:
       target_group:
@@ -31,16 +39,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       
-      - name: 📁 Copy Local Configuration
-        run: |
-          # Copy the local hosts.yml from mounted volume
-          if [ -f "/adrilab/ansible/inventory/hosts.yml" ]; then
-            cp /adrilab/ansible/inventory/hosts.yml ./ansible/inventory/hosts.yml
-            echo "✅ Copied local hosts.yml"
-          else
-            echo "⚠️ Local hosts.yml not found, using repository version"
-          fi
-      
       - name: Validate Syntax
         working-directory: ./ansible
         run: ansible-playbook --syntax-check playbooks/site.yml -i inventory/hosts.yml
@@ -58,21 +56,11 @@ jobs:
     name: Deploy Configuration
     runs-on: [self-hosted, ansible]
     needs: validate
-    if: github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      
-      - name: 📁 Copy Local Configuration
-        run: |
-          # Copy the local hosts.yml from mounted volume
-          if [ -f "/adrilab/ansible/inventory/hosts.yml" ]; then
-            cp /adrilab/ansible/inventory/hosts.yml ./ansible/inventory/hosts.yml
-            echo "✅ Copied local hosts.yml"
-          else
-            echo "⚠️ Local hosts.yml not found, using repository version"
-          fi
       
       - name: Configure SSH
         env:
@@ -86,7 +74,7 @@ jobs:
         working-directory: ./ansible
         env:
           TARGET_GROUP: ${{ github.event.inputs.target_group || 'all' }}
-          CHECK_MODE: ${{ github.event.inputs.check_only == 'true' }}
+          CHECK_MODE: ${{ github.event_name == 'pull_request' || github.event.inputs.check_only == 'true' }}
         run: |
           if [ "$CHECK_MODE" = "true" ]; then
             ansible-playbook playbooks/site.yml -i inventory/hosts.yml --limit "$TARGET_GROUP" --check --diff
@@ -99,5 +87,5 @@ jobs:
         run: |
           echo "## Ansible Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "**Target:** ${{ github.event.inputs.target_group || 'all' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Mode:** ${{ github.event.inputs.check_only == 'true' && 'Check' || 'Deploy' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ github.event_name == 'pull_request' && 'Check' || 'Deploy' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

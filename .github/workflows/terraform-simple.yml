@@ -1,0 +1,33 @@
+name: 🔧 Terraform Simple
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/terraform-simple.yml']
+
+jobs:
+  simple:
+    name: 🔧 Simple Test
+    runs-on: [self-hosted]
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ✅ Test Basic Commands
+        run: |
+          echo "=== BASIC TESTS ==="
+          pwd
+          ls -la
+          echo ""
+          echo "=== TERRAFORM TEST ==="
+          terraform version
+          echo ""
+          echo "=== COPY LOCAL CONFIG ==="
+          cp /adrilab/terraform/terraform.tfvars terraform/terraform.tfvars
+          echo "✅ Config copied successfully"
+          echo ""
+          echo "=== SHOW CONFIG ==="
+          head -3 terraform/terraform.tfvars
+          echo ""
+          echo "🎉 All basic tests passed!"

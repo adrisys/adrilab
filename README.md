@@ -62,7 +62,6 @@ This repository follows a layered approach to infrastructure management. Each di
 - **Bootstrap Procedures**: Initial setup and recovery operations
 - **Documentation**: Manual steps before automation
 
-
 ---
 
 ## Technology Stack

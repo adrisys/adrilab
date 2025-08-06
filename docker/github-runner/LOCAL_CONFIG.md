@@ -40,22 +40,39 @@ Ensure your SSH keys are available at `~/.ssh/` for Ansible connections:
 
 ## Docker Compose Configuration
 
-The updated `docker-compose.yml` now mounts these local files:
+The updated `docker-compose.yml` now mounts these local files to a safe location:
 
 ```yaml
 volumes:
   # Runner workspace
   - ./runner-data:/home/runner/_work:rw
-  # Local configuration files (read-only)
-  - /Users/adri/repos/adrilab/terraform/terraform.tfvars:/home/runner/terraform.tfvars:ro
-  - /Users/adri/repos/adrilab/ansible/inventory/hosts.yml:/home/runner/hosts.yml:ro
+  # Local configuration files (mounted to safe location)
+  - /Users/adri/repos/adrilab/terraform/terraform.tfvars:/home/runner/local-config/terraform.tfvars:ro
+  - /Users/adri/repos/adrilab/ansible/inventory/hosts.yml:/home/runner/local-config/hosts.yml:ro
   # SSH keys for Ansible
   - ~/.ssh:/home/runner/.ssh:ro
 ```
 
 ## Using in GitHub Actions Workflows
 
-Your workflows can now reference these files. Here are examples:
+Your workflows need to copy the mounted files into the repository structure. Use the provided setup script:
+
+### Setup Script
+
+Each workflow should start with:
+
+```yaml
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+    
+  - name: Setup local configuration files
+    run: /home/runner/setup-runner-files.sh
+```
+
+This script copies:
+- `/home/runner/local-config/terraform.tfvars` → `terraform/terraform.tfvars`  
+- `/home/runner/local-config/hosts.yml` → `ansible/inventory/hosts.yml`
 
 ### Terraform Workflow
 

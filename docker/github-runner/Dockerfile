@@ -59,9 +59,10 @@ RUN mkdir -p /home/runner/_work \
     && chown -R runner:runner /home/runner \
     && chmod -R 755 /home/runner
 
-# Copy entrypoint script
+# Copy scripts
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY setup-runner-files.sh /home/runner/setup-runner-files.sh
+RUN chmod +x /entrypoint.sh /home/runner/setup-runner-files.sh
 
 # Install GitHub Actions runner dependencies script
 # This will be run after the runner is downloaded in entrypoint.sh

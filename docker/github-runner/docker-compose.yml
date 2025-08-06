@@ -8,6 +8,7 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - RUNNER_NAME=adrxlab-terraform-runner
       - RUNNER_LABELS=self-hosted,terraform,ansible,proxmox,docker
+      - RUNNER_ALLOW_RUNASROOT=1
     volumes:
       # Mount a directory for persistent runner data with proper permissions
       - ./runner-data:/home/runner/_work:rw
@@ -16,4 +17,4 @@ services:
       # Mount SSH keys for Ansible (using root's SSH directory)
       - /root/.ssh:/home/runner/.ssh:ro
     restart: unless-stopped
-    user: "1000:1000"  # Run as user ID 1000 (standard for runner user)
+    user: "root"  # Run as root to avoid permission issues with mounted files

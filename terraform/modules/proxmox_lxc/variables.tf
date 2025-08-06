@@ -98,6 +98,16 @@ variable "lxc_memory" {
   default     = 512
 }
 
+variable "lxc_vmstate" {
+  description = "State of the LXC container after creation (running or stopped)"
+  type        = string
+  default     = "running"
+  validation {
+    condition     = contains(["running", "stopped"], var.lxc_vmstate)
+    error_message = "The vmstate must be either 'running' or 'stopped'."
+  }
+}
+
 # ------------------------------------------------------------------------------
 # Storage Configuration
 # ------------------------------------------------------------------------------

@@ -24,6 +24,9 @@ resource "proxmox_lxc" "container" {
   cores  = var.lxc_cores
   memory = var.lxc_memory
 
+  # VM State
+  start = var.lxc_vmstate == "running" ? true : false
+
   # Container Features
   features {
     nesting = var.nesting

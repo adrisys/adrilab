@@ -115,15 +115,7 @@ jobs:
               IdentitiesOnly yes
               IdentityFile ~/.ssh/id_adrilab
           EOF
-          chmod 600 ~/.ssh/config
-      
-      - name: Test Connectivity
-        working-directory: ./ansible
-        env:
-          TARGET_GROUP: ${{ github.event.inputs.target_group || 'all' }}
-        run: |
-          echo "Testing connectivity to hosts..."
-          ansible all -i inventory/hosts.yml --limit "$TARGET_GROUP" -m ping || echo "Some hosts unreachable"      
+          chmod 600 ~/.ssh/config   
       - name: Run Ansible Playbook
         working-directory: ./ansible
         env:

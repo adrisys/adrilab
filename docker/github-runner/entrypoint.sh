@@ -19,16 +19,16 @@ echo "Setting up local configuration files..."
 
 # Check if local terraform.tfvars is mounted
 if [ -f "/home/runner/terraform.tfvars" ]; then
-    echo "✓ Found local terraform.tfvars, will be available for Terraform workflows"
+    echo "✓ Found local terraform.tfvars at /home/runner/terraform.tfvars"
 else
     echo "⚠ No local terraform.tfvars found. Make sure to mount it as a volume."
 fi
 
-# Check if local hosts.yml is mounted in the repository structure
-if [ -f "/home/runner/_work/adrilab/adrilab/ansible/inventory/hosts.yml" ]; then
-    echo "✓ Found local hosts.yml in ansible inventory, will be available for Ansible workflows"
+# Check if local hosts.yml is mounted
+if [ -f "/home/runner/hosts.yml" ]; then
+    echo "✓ Found local hosts.yml at /home/runner/hosts.yml"
 else
-    echo "⚠ No local hosts.yml found in ansible inventory. Make sure to mount it as a volume."
+    echo "⚠ No local hosts.yml found. Make sure to mount it as a volume."
 fi
 
 # Check SSH keys

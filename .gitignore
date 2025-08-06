@@ -36,6 +36,7 @@ terraform/dev/.terraform.tfstate.lock.info
 terraform/.env.local
 terraform/terraform.local.tfvars
 terraform/generated-*.yml
+terraform/terraform.tfvars  # Local configuration with sensitive data
 
 # Python
 __pycache__/

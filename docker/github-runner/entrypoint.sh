@@ -14,6 +14,34 @@ if [ -z "$GITHUB_TOKEN" ]; then
     exit 1
 fi
 
+# Setup local configuration files if they exist
+echo "Setting up local configuration files..."
+
+# Check if local terraform.tfvars is mounted
+if [ -f "/home/runner/terraform.tfvars" ]; then
+    echo "✓ Found local terraform.tfvars, will be available for Terraform workflows"
+else
+    echo "⚠ No local terraform.tfvars found. Make sure to mount it as a volume."
+fi
+
+# Check if local hosts.yml is mounted
+if [ -f "/home/runner/hosts.yml" ]; then
+    echo "✓ Found local hosts.yml, will be available for Ansible workflows"
+else
+    echo "⚠ No local hosts.yml found. Make sure to mount it as a volume."
+fi
+
+# Check SSH keys
+if [ -d "/home/runner/.ssh" ]; then
+    echo "✓ Found SSH keys directory"
+    # Fix permissions for SSH keys
+    chmod 700 /home/runner/.ssh || true
+    chmod 600 /home/runner/.ssh/* 2>/dev/null || true
+    chown -R runner:runner /home/runner/.ssh 2>/dev/null || true
+else
+    echo "⚠ No SSH keys found. Make sure to mount ~/.ssh as a volume for Ansible."
+fi
+
 # Get runner registration token
 echo "Getting runner registration token..."
 RUNNER_TOKEN=$(curl -s -X POST \

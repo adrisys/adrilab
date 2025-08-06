@@ -13,6 +13,11 @@ services:
     volumes:
       # Mount a directory for persistent runner data with proper permissions
       - ./runner-data:/home/runner/_work:rw
+      # Mount local configuration files (keep these files locally, don't commit to git)
+      - /Users/adri/repos/adrilab/terraform/terraform.tfvars:/home/runner/terraform.tfvars:ro
+      - /Users/adri/repos/adrilab/ansible/inventory/hosts.yml:/home/runner/hosts.yml:ro
+      # Mount SSH keys for Ansible
+      - ~/.ssh:/home/runner/.ssh:ro
     restart: unless-stopped
     # Removed network_mode: host - now using default bridge networking for better security
     # Removed docker socket mount - not needed for Terraform-only workflows

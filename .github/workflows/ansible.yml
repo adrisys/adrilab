@@ -63,8 +63,14 @@ jobs:
         working-directory: ./ansible
         run: |
           echo "Validating inventory structure..."
-          ansible-inventory -i inventory/hosts.yml --list | jq 'del(.._meta.hostvars) | walk(if type == "object" and has("hosts") then .hosts = ["<redacted>"] else . end)' > /dev/null
-          echo "✓ Inventory validation complete"
+          if ansible-inventory -i inventory/hosts.yml --list > /tmp/inventory_check.json 2>&1; then
+            echo "✓ Inventory validation complete - $(jq -r '._meta.hostvars | length' /tmp/inventory_check.json 2>/dev/null || echo "N/A") hosts configured"
+            rm -f /tmp/inventory_check.json
+          else
+            echo "✗ Inventory validation failed"
+            rm -f /tmp/inventory_check.json
+            exit 1
+          fi
 
   deploy:
     name: Deploy Configuration

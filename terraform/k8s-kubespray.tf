@@ -8,7 +8,7 @@ module "proxmox_vm_k8s_cp" {
   vm_description = "Kubernetes Control Plane"
   target_node    = var.target_node
   clone_template = var.clone_template
-  vm_state       = "running"
+  vm_state       = "stopped"
 
   # Resource Allocation
   cores   = var.cores
@@ -56,7 +56,7 @@ module "proxmox_vm_k8s_nodes" {
   vm_description = "Kubernetes Worker Node"
   target_node    = var.target_node
   clone_template = var.clone_template
-  vm_state       = "running"
+  vm_state       = "stopped"
 
   # Resource Allocation
   cores   = var.cores

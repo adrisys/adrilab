@@ -30,7 +30,7 @@ module "proxmox_vm_k8s_cp" {
 
   # IP Configuration
   ip_base    = var.ip_base
-  ip_start   = var.control_plane_ip_start_kubespray
+  ip_start   = var.control_plane_ip_start
   ip_netmask = var.ip_netmask
   ip_gateway = var.ip_gateway
 
@@ -66,7 +66,7 @@ module "proxmox_vm_k8s_nodes" {
 
   # Storage Configuration
   cloudinit_storage = var.cloudinit_storage
-  disk_size         = var.disk_size_kubespray
+  disk_size         = var.disk_size
   disk_cache        = var.disk_cache
   disk_storage      = var.disk_storage
   disk_replicate    = var.disk_replicate

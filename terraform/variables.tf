@@ -83,7 +83,7 @@ variable "disk_size" {
   type        = string
 }
 
-variable "disk_size_kubespray" {
+variable "disk_size_kubeadm" {
   description = "Primary disk size for VMs"
   type        = string
 }

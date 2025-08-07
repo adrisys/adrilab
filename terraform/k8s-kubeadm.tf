@@ -18,7 +18,7 @@ module "proxmox_vm_k8s_control_plane" {
 
   # Storage Configuration
   cloudinit_storage = var.cloudinit_storage
-  disk_size         = var.disk_size
+  disk_size         = var.disk_size_kubeadm
   disk_cache        = var.disk_cache
   disk_storage      = var.disk_storage
   disk_replicate    = var.disk_replicate
@@ -66,7 +66,7 @@ module "proxmox_vm_k8s_workers" {
 
   # Storage Configuration
   cloudinit_storage = var.cloudinit_storage
-  disk_size         = var.disk_size
+  disk_size         = var.disk_size_kubeadm
   disk_cache        = var.disk_cache
   disk_storage      = var.disk_storage
   disk_replicate    = var.disk_replicate

@@ -32,4 +32,7 @@ module "proxmox_lxc_container" {
   ssh_public_keys = var.ssh_public_key
   tags            = var.tags
 
+  # Protection
+  protection = true
+
 }

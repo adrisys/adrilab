@@ -142,3 +142,9 @@ variable "tags" {
   type        = list(string)
   default     = []
 }
+
+variable "protection" {
+  description = "Enable deletion protection for the LXC container"
+  type        = bool
+  default     = true
+}

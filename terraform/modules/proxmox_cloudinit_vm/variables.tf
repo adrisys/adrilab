@@ -177,3 +177,9 @@ variable "vm_state" {
     error_message = "vm_state must be one of: running, stopped, started"
   }
 }
+
+variable "protection" {
+  description = "Enable deletion protection for the VM"
+  type        = bool
+  default     = true
+}

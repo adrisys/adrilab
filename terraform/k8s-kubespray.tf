@@ -41,6 +41,9 @@ module "proxmox_vm_k8s_cp" {
 
   # Metadata
   tags = var.tags
+
+  # Protection
+  protection = true
 }
 
 # Kubernetes Worker Nodes
@@ -89,4 +92,7 @@ module "proxmox_vm_k8s_nodes" {
 
   # Cloud-init Configuration
   custom_cloud_init_file = ""
+
+  # Protection
+  protection = true
 }

@@ -72,7 +72,8 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
   ciuser     = var.ciuser
   cipassword = var.cipassword
 
-  onboot = var.onboot
+  onboot     = var.onboot
+  protection = var.protection
 
   lifecycle {
     ignore_changes = [clone]

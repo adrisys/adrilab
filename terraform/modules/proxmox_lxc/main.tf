@@ -53,4 +53,7 @@ resource "proxmox_lxc" "container" {
 
   # Tags
   tags = join(",", var.tags)
+
+  # Protection
+  protection = var.protection
 }

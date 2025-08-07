@@ -9,27 +9,27 @@
 
     prometheus:
       prometheusSpec:
-        # Production storage - larger capacity
+        # Homelab storage - reasonable capacity
         storageSpec:
           volumeClaimTemplate:
             spec:
               storageClassName: local-path
               resources:
                 requests:
-                  storage: 50Gi
+                  storage: 30Gi
         
-        # Extended retention for production
-        retention: 90d
-        retentionSize: 40GB
+        # Extended retention for historical data
+        retention: 60d
+        retentionSize: 25GB
         
-        # Production resources
+        # Homelab-optimized resources
         resources:
           limits:
-            cpu: 2000m
-            memory: 8Gi
-          requests:
             cpu: 1000m
-            memory: 4Gi
+            memory: 3Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
         
         # External URL for production
         externalUrl: "http://prometheus.lan:30090"
@@ -44,26 +44,29 @@
         nodePort: 30090
 
     grafana:
-      # Production admin password (should use external secret)
-      adminPassword: "secure-production-password"
+      # Use existing secret for admin credentials  
+      admin:
+        existingSecret: grafana-admin-credentials
+        userKey: admin-user
+        passwordKey: admin-password
       
       persistence:
         enabled: true
         storageClassName: local-path
-        size: 20Gi
+        size: 10Gi  # Reasonable for homelab
         
       service:
         type: NodePort
         nodePort: 30080
         
-      # Production resources
+      # Homelab-optimized resources
       resources:
         limits:
-          cpu: 1000m
-          memory: 2Gi
+          cpu: 500m
+          memory: 1Gi
         requests:
-          cpu: 200m
-          memory: 512Mi
+          cpu: 100m
+          memory: 256Mi
           
       # Production Grafana config
       grafana.ini:

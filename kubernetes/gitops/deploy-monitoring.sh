@@ -32,6 +32,20 @@ if ! kubectl get namespace argocd &> /dev/null; then
     exit 1
 fi
 
+# Check if monitoring secrets exist
+if ! kubectl get secret grafana-admin-credentials -n monitoring &> /dev/null 2>&1; then
+    echo "⚠️  Monitoring secrets not found. Setting up secure credentials..."
+    echo "   Run: ./setup-monitoring-secrets.sh"
+    read -p "Do you want to run the secure setup now? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        ./setup-monitoring-secrets.sh
+    else
+        echo "❌ Please run ./setup-monitoring-secrets.sh first to set up secure credentials"
+        exit 1
+    fi
+fi
+
 echo "✅ Prerequisites check passed"
 
 # Wait for ArgoCD to be ready

@@ -60,28 +60,31 @@ spec:
 
         # Grafana configuration
         grafana:
-          # Admin credentials (use external secret in production)
-          adminPassword: "admin123"
+          # Use existing secret for admin credentials
+          admin:
+            existingSecret: grafana-admin-credentials
+            userKey: admin-user
+            passwordKey: admin-password
           
           # Persistence
           persistence:
             enabled: true
             storageClassName: local-path
-            size: 10Gi
+            size: 5Gi  # Reduced for homelab
             
           # Service configuration
           service:
             type: NodePort
             nodePort: 30080
             
-          # Resource limits
+          # Resource limits - optimized for homelab
           resources:
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 200m
+              memory: 512Mi
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 50m
+              memory: 128Mi
               
           # Default dashboards
           defaultDashboardsEnabled: true

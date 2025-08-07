@@ -13,7 +13,7 @@ spec:
   
   source:
     repoURL: https://github.com/adrisys/adrilab.git  # Update with your actual repo
-    targetRevision: main
+    targetRevision: feature/monitoring-gitops-setup
     path: kubernetes/gitops/applications
     directory:
       recurse: true

@@ -1,0 +1,153 @@
+# Alternative Prometheus configuration for kubeadm clusters
+# This version uses dynamic storage class detection
+
+- op: replace
+  path: /spec/source/helm/values
+  value: |
+    # Kubeadm Prometheus Stack Configuration
+    global:
+      rbac:
+        create: true
+
+    prometheus:
+      prometheusSpec:
+        # Dynamic storage - will use default storage class
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              # storageClassName will be set dynamically
+              resources:
+                requests:
+                  storage: 20Gi
+        
+        # Retention settings
+        retention: 30d
+        retentionSize: 15GB
+        
+        # Resource settings for kubeadm cluster
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            memory: 2Gi
+        
+        # Service monitor configuration
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        
+      service:
+        type: NodePort
+        nodePort: 30090
+
+    grafana:
+      # Admin password
+      adminPassword: "admin123"
+      
+      persistence:
+        enabled: true
+        # storageClassName will use default
+        size: 10Gi
+        
+      service:
+        type: NodePort
+        nodePort: 30080
+        
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+          
+      # Grafana configuration
+      grafana.ini:
+        security:
+          allow_embedding: true
+        server:
+          root_url: "%(protocol)s://%(domain)s:%(http_port)s/"
+          
+      # Enable default dashboards
+      defaultDashboardsEnabled: true
+      
+      # Dashboard sidecar configuration
+      sidecar:
+        dashboards:
+          enabled: true
+          label: grafana_dashboard
+          labelValue: "1"
+          folder: /tmp/dashboards
+          searchNamespace: ALL
+        datasources:
+          enabled: true
+          label: grafana_datasource
+          labelValue: "1"
+
+    alertmanager:
+      alertmanagerSpec:
+        storage:
+          volumeClaimTemplate:
+            spec:
+              # storageClassName will use default
+              resources:
+                requests:
+                  storage: 5Gi
+        
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+            
+      service:
+        type: NodePort
+        nodePort: 30093
+
+    # Enable monitoring components
+    nodeExporter:
+      enabled: true
+    kubeStateMetrics:
+      enabled: true
+    prometheusOperator:
+      enabled: true
+      
+    # Monitor Kubernetes components (kubeadm specific)
+    kubeApiServer:
+      enabled: true
+    kubelet:
+      enabled: true
+    kubeControllerManager:
+      enabled: true
+      service:
+        enabled: true
+        port: 10257
+        targetPort: 10257
+      serviceMonitor:
+        enabled: true
+        https: true
+        insecureSkipVerify: true
+    coreDns:
+      enabled: true
+    kubeEtcd:
+      enabled: true
+      service:
+        enabled: true
+        port: 2381
+        targetPort: 2381
+    kubeScheduler:
+      enabled: true
+      service:
+        enabled: true
+        port: 10259
+        targetPort: 10259
+      serviceMonitor:
+        enabled: true
+        https: true
+        insecureSkipVerify: true
+    kubeProxy:
+      enabled: true

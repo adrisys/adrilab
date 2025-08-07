@@ -1,0 +1,142 @@
+# Production-specific configurations
+- op: replace
+  path: /spec/source/helm/values
+  value: |
+    # Production Prometheus Stack Configuration
+    global:
+      rbac:
+        create: true
+
+    prometheus:
+      prometheusSpec:
+        # Production storage - larger capacity
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: local-path
+              resources:
+                requests:
+                  storage: 50Gi
+        
+        # Extended retention for production
+        retention: 90d
+        retentionSize: 40GB
+        
+        # Production resources
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 8Gi
+          requests:
+            cpu: 1000m
+            memory: 4Gi
+        
+        # External URL for production
+        externalUrl: "http://prometheus.lan:30090"
+        
+        # Production scrape configs
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        
+      service:
+        type: NodePort
+        nodePort: 30090
+
+    grafana:
+      # Production admin password (should use external secret)
+      adminPassword: "secure-production-password"
+      
+      persistence:
+        enabled: true
+        storageClassName: local-path
+        size: 20Gi
+        
+      service:
+        type: NodePort
+        nodePort: 30080
+        
+      # Production resources
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+          
+      # Production Grafana config
+      grafana.ini:
+        security:
+          allow_embedding: false
+          cookie_secure: true
+        auth.anonymous:
+          enabled: false
+        server:
+          root_url: "http://grafana.lan:30080"
+          
+      # Enable more comprehensive dashboards
+      defaultDashboardsEnabled: true
+      
+      # Dashboard sidecar configuration
+      sidecar:
+        dashboards:
+          enabled: true
+          label: grafana_dashboard
+          labelValue: "1"
+          folder: /tmp/dashboards
+          searchNamespace: ALL
+        datasources:
+          enabled: true
+          label: grafana_datasource
+          labelValue: "1"
+
+    alertmanager:
+      alertmanagerSpec:
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: local-path
+              resources:
+                requests:
+                  storage: 10Gi
+        
+        # Production resources
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        
+        # Production external URL
+        externalUrl: "http://alertmanager.lan:30093"
+            
+      service:
+        type: NodePort
+        nodePort: 30093
+
+    # Enable all monitoring components for production
+    nodeExporter:
+      enabled: true
+    kubeStateMetrics:
+      enabled: true
+    prometheusOperator:
+      enabled: true
+      
+    # Production monitoring for all components
+    kubeApiServer:
+      enabled: true
+    kubelet:
+      enabled: true
+    kubeControllerManager:
+      enabled: true
+    coreDns:
+      enabled: true
+    kubeEtcd:
+      enabled: true
+    kubeScheduler:
+      enabled: true
+    kubeProxy:
+      enabled: true

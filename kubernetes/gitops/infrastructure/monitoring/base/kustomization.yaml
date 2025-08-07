@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: monitoring-base
+
+resources:
+  - namespace.yaml
+  - prometheus-helm-release.yaml
+
+# Common labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: monitoring
+  app.kubernetes.io/part-of: infrastructure
+  managed-by: argocd

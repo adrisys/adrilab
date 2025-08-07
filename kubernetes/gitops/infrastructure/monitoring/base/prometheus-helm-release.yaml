@@ -1,0 +1,182 @@
+# Option 1: Using Helm directly via ArgoCD Application
+# This approach uses ArgoCD to manage the Helm chart directly
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "^55.0.0"  # Pin to major version, allow minor updates
+    helm:
+      releaseName: prometheus-stack
+      values: |
+        # Global settings
+        global:
+          rbac:
+            create: true
+
+        # Prometheus configuration
+        prometheus:
+          prometheusSpec:
+            # Storage configuration
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  resources:
+                    requests:
+                      storage: 20Gi
+            
+            # Retention period
+            retention: 30d
+            retentionSize: 15GB
+            
+            # Resource limits
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 4Gi
+              requests:
+                cpu: 500m
+                memory: 2Gi
+            
+            # Service monitor selector
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            
+          # Service configuration
+          service:
+            type: NodePort
+            nodePort: 30090
+
+        # Grafana configuration
+        grafana:
+          # Admin credentials (use external secret in production)
+          adminPassword: "admin123"
+          
+          # Persistence
+          persistence:
+            enabled: true
+            storageClassName: local-path
+            size: 10Gi
+            
+          # Service configuration
+          service:
+            type: NodePort
+            nodePort: 30080
+            
+          # Resource limits
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+              
+          # Default dashboards
+          defaultDashboardsEnabled: true
+          
+          # Sidecar for dashboard discovery
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+              folder: /tmp/dashboards
+              searchNamespace: ALL
+            datasources:
+              enabled: true
+              label: grafana_datasource
+              labelValue: "1"
+
+        # Alertmanager configuration
+        alertmanager:
+          alertmanagerSpec:
+            # Storage
+            storage:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  resources:
+                    requests:
+                      storage: 5Gi
+            
+            # Resource limits
+            resources:
+              limits:
+                cpu: 200m
+                memory: 512Mi
+              requests:
+                cpu: 50m
+                memory: 128Mi
+                
+          # Service configuration
+          service:
+            type: NodePort
+            nodePort: 30093
+
+        # Node Exporter (collects node metrics)
+        nodeExporter:
+          enabled: true
+          
+        # Kube State Metrics (collects Kubernetes metrics)
+        kubeStateMetrics:
+          enabled: true
+
+        # Prometheus Operator
+        prometheusOperator:
+          enabled: true
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+
+        # Component monitoring
+        kubeApiServer:
+          enabled: true
+        kubelet:
+          enabled: true
+        kubeControllerManager:
+          enabled: true
+        coreDns:
+          enabled: true
+        kubeEtcd:
+          enabled: true
+        kubeScheduler:
+          enabled: true
+        kubeProxy:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  revisionHistoryLimit: 5

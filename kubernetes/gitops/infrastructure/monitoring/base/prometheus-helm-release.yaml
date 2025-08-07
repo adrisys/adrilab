@@ -13,9 +13,10 @@ spec:
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: kube-prometheus-stack
-    targetRevision: "^55.0.0"  # Pin to major version, allow minor updates
+    targetRevision: "54.2.2"  # Use stable version without CRD annotation issues
     helm:
       releaseName: prometheus-stack
+      skipCrds: false  # Let Helm manage CRDs
       values: |
         # Global settings
         global:
@@ -172,6 +173,8 @@ spec:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
       - PruneLast=true
+      - Replace=true  # Use replace for CRDs
+      - ServerSideApply=true  # Use server-side apply for large resources
     retry:
       limit: 5
       backoff:

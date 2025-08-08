@@ -127,6 +127,11 @@
       enabled: true
     prometheusOperator:
       enabled: true
+      # Disable admission webhooks to avoid pre/post-install hook issues
+      admissionWebhooks:
+        enabled: false
+        patch:
+          enabled: false
       
     # Production monitoring for all components
     kubeApiServer:

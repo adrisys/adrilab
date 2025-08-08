@@ -184,7 +184,6 @@ spec:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
       - PruneLast=true
-      - Replace=true  # Use replace for CRDs
       - ServerSideApply=true  # Use server-side apply for large resources
     retry:
       limit: 5

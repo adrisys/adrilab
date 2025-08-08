@@ -133,6 +133,9 @@
         enabled: false
         patch:
           enabled: false
+      # Disable operator web TLS to avoid mounting admission TLS secret
+      tls:
+        enabled: false
       
     # Production monitoring for all components
     kubeApiServer:

@@ -145,6 +145,9 @@ spec:
             enabled: false
             patch:
               enabled: false
+          # Disable operator web TLS to avoid mounting admission TLS secret
+          tls:
+            enabled: false
           resources:
             limits:
               cpu: 200m

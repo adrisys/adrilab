@@ -53,6 +53,7 @@
       persistence:
         enabled: true
         storageClassName: local-path
+        existingClaim: prometheus-stack-grafana
         size: 10Gi  # Reasonable for homelab
         
       service:

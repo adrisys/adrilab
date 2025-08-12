@@ -63,3 +63,8 @@ docker/github-runner/.env
 
 # Ansible
 ansible/inventory/hosts.yml
+docker/github-runner/runner-home/
+docker/github-runner/runner-home/_work/
+docker/github-runner/runner-home/_diag/
+*.log
+terraform/terraform.tfvars

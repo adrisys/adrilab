@@ -1,0 +1,195 @@
+# Option 1: Using Helm directly via ArgoCD Application
+# This approach uses ArgoCD to manage the Helm chart directly
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "54.2.2"  # Use stable version without CRD annotation issues
+    helm:
+      releaseName: prometheus-stack
+      skipCrds: false  # Let Helm manage CRDs
+      values: |
+        # Global settings
+        global:
+          rbac:
+            create: true
+
+        # Prometheus configuration
+        prometheus:
+          prometheusSpec:
+            # Storage configuration
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  resources:
+                    requests:
+                      storage: 20Gi
+            
+            # Retention period
+            retention: 30d
+            retentionSize: 15GB
+            
+            # Resource limits
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 4Gi
+              requests:
+                cpu: 500m
+                memory: 2Gi
+            
+            # Service monitor selector
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            
+          # Service configuration
+          service:
+            type: NodePort
+            nodePort: 30090
+
+        # Grafana configuration
+        grafana:
+          # Use existing secret for admin credentials
+          admin:
+            existingSecret: grafana-admin-credentials
+            userKey: admin-user
+            passwordKey: admin-password
+          
+          # Persistence
+          persistence:
+            enabled: true
+            storageClassName: local-path
+            size: 5Gi  # Reduced for homelab
+            
+          # Service configuration
+          service:
+            type: NodePort
+            nodePort: 30080
+            
+          # Resource limits - optimized for homelab
+          resources:
+            limits:
+              cpu: 200m
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+              
+          # Default dashboards
+          defaultDashboardsEnabled: true
+          
+          # Sidecar for dashboard discovery
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+              folder: /tmp/dashboards
+              searchNamespace: ALL
+            datasources:
+              enabled: true
+              label: grafana_datasource
+              labelValue: "1"
+
+        # Alertmanager configuration
+        alertmanager:
+          alertmanagerSpec:
+            # Storage
+            storage:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  resources:
+                    requests:
+                      storage: 5Gi
+            
+            # Resource limits
+            resources:
+              limits:
+                cpu: 200m
+                memory: 512Mi
+              requests:
+                cpu: 50m
+                memory: 128Mi
+                
+          # Service configuration
+          service:
+            type: NodePort
+            nodePort: 30093
+
+        # Node Exporter (collects node metrics)
+        nodeExporter:
+          enabled: true
+          
+        # Kube State Metrics (collects Kubernetes metrics)
+        kubeStateMetrics:
+          enabled: true
+
+        # Prometheus Operator
+        prometheusOperator:
+          enabled: true
+          # Disable admission webhooks to avoid pre/post-install hook issues
+          admissionWebhooks:
+            enabled: false
+            patch:
+              enabled: false
+          # Disable operator web TLS to avoid mounting admission TLS secret
+          tls:
+            enabled: false
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+
+        # Component monitoring
+        kubeApiServer:
+          enabled: true
+        kubelet:
+          enabled: true
+        kubeControllerManager:
+          enabled: true
+        coreDns:
+          enabled: true
+        kubeEtcd:
+          enabled: true
+        kubeScheduler:
+          enabled: true
+        kubeProxy:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ServerSideApply=true  # Use server-side apply for large resources
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  revisionHistoryLimit: 5

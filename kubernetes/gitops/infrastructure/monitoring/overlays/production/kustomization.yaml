@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: monitoring-production
+
+# Reference the base
+resources:
+  - ../../base
+
+# Production-specific patches
+patches:
+  - path: prometheus-production-patch.yaml
+    target:
+      group: argoproj.io
+      version: v1alpha1
+      kind: Application
+      name: prometheus-stack
+
+# Production-specific labels
+commonLabels:
+  environment: production
+  
+# Generate ConfigMaps for custom dashboards
+configMapGenerator:
+  - name: custom-dashboards
+    files:
+      - dashboards/kubernetes-overview.json

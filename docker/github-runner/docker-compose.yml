@@ -10,8 +10,8 @@ services:
       - RUNNER_LABELS=self-hosted,terraform,ansible,proxmox,docker
       - RUNNER_ALLOW_RUNASROOT=1
     volumes:
-      # Mount a directory for persistent runner data with proper permissions
-      - ./runner-data:/home/runner/_work:rw
+      # Persist the entire runner home so config/credentials survive
+      - ./runner-home:/home/runner:rw
       # Mount the entire adrilab repo to make files available
       - /root/adrilab:/adrilab:ro
       # Mount SSH keys for Ansible (using root's SSH directory)

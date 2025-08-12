@@ -1,0 +1,20 @@
+services:
+  github-runner:
+    build: .
+    container_name: adrxlab-github-runner
+    environment:
+      - GITHUB_OWNER=adrisys
+      - GITHUB_REPO=adrilab
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - RUNNER_NAME=adrxlab-terraform-runner
+      - RUNNER_LABELS=self-hosted,terraform,ansible,proxmox,docker
+      - RUNNER_ALLOW_RUNASROOT=1
+    volumes:
+      # Mount a directory for persistent runner data with proper permissions
+      - ./runner-data:/home/runner/_work:rw
+      # Mount the entire adrilab repo to make files available
+      - /root/adrilab:/adrilab:ro
+      # Mount SSH keys for Ansible (using root's SSH directory)
+      - /root/.ssh:/home/runner/.ssh:ro
+    restart: unless-stopped
+    user: "root"  # Run as root to avoid permission issues with mounted files

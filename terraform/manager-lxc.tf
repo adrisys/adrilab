@@ -32,6 +32,9 @@ module "proxmox_lxc_container" {
   ssh_public_keys = var.ssh_public_key
   tags            = var.tags
 
+  # Boot Configuration
+  onboot = true
+
   # Protection
   protection = true
 

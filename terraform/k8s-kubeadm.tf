@@ -42,6 +42,9 @@ module "proxmox_vm_k8s_control_plane" {
   # Metadata
   tags = var.tags
 
+  # Boot Configuration
+  onboot = true
+
   # Protection
   protection = true
 }
@@ -92,6 +95,9 @@ module "proxmox_vm_k8s_workers" {
 
   # Cloud-init Configuration
   custom_cloud_init_file = ""
+
+  # Boot Configuration
+  onboot = true
 
   # Protection
   protection = true

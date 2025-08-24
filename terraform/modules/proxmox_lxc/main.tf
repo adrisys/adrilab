@@ -25,7 +25,8 @@ resource "proxmox_lxc" "container" {
   memory = var.lxc_memory
 
   # VM State
-  start = var.lxc_vmstate == "running" ? true : false
+  start  = var.lxc_vmstate == "running" ? true : false
+  onboot = var.onboot
 
   # Container Features
   features {

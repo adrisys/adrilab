@@ -148,3 +148,9 @@ variable "protection" {
   type        = bool
   default     = true
 }
+
+variable "onboot" {
+  description = "Whether the LXC container should start on boot"
+  type        = bool
+  default     = false
+}

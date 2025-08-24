@@ -69,6 +69,11 @@ variable "memory" {
   type        = number
 }
 
+variable "midnight_memory" {
+  description = "Memory allocation per VM in MB"
+  type        = number
+}
+
 # ------------------------------------------------------------------------------
 # Storage Configuration
 # ------------------------------------------------------------------------------
@@ -151,15 +156,10 @@ variable "worker_ip_start" {
   type        = number
 }
 
-# Kubespray-specific IP Configuration
 
-variable "control_plane_ip_start_kubespray" {
-  description = "Starting IP for kubespray control plane VMs (last octet)"
-  type        = number
-}
 
-variable "worker_ip_start_kubespray" {
-  description = "Starting IP for kubespray worker node VMs (last octet)"
+variable "ip_midnight_preview" {
+  description = "Starting IP for midnight preview control plane VMs (last octet)"
   type        = number
 }
 

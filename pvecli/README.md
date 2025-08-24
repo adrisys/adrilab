@@ -26,6 +26,7 @@ pip install -e .
 ### Configuration
 
 Set environment variables:
+
 ```bash
 export PVE_HOST="https://proxmox.example.com:8006"
 export PVE_TOKEN_ID="user@realm!token-name"
@@ -34,6 +35,7 @@ export PVE_VERIFY_SSL=false  # optional, default false
 ```
 
 Or create `~/.pvecli/config.yaml`:
+
 ```yaml
 host: "https://proxmox.example.com:8006"
 token_id: "user@realm!token-name"
@@ -54,6 +56,7 @@ profiles:
 ## Usage
 
 ### List VMs
+
 ```bash
 # List all VMs
 pve vms
@@ -69,6 +72,7 @@ pve vms --json
 ```
 
 ### Control VMs
+
 ```bash
 # Start VM (async)
 pve start --vmid 101
@@ -84,6 +88,7 @@ pve stop --vmid 101 --yes --wait
 ```
 
 ### Snapshots
+
 ```bash
 # Create snapshot
 pve snapshot create --vmid 101 --name "pre-upgrade" --wait
@@ -93,6 +98,7 @@ pve snapshot create --vmid 101 --name "before-update" --desc "Before system upda
 ```
 
 ### Backups
+
 ```bash
 # Backup to storage (snapshot mode)
 pve backup --vmid 101 --storage pbs --wait
@@ -103,6 +109,7 @@ pve backup --vmid 101 --storage nfs --mode stop --wait
 ```
 
 ### Multiple Profiles
+
 ```bash
 # Use specific profile
 pve vms --profile production
@@ -154,6 +161,7 @@ pyinstaller --onefile --name pve pvecli/cli.py
 ### Required Permissions
 
 For the token user, assign these privileges:
+
 - `VM.Audit` - List VMs
 - `VM.PowerMgmt` - Start/stop VMs  
 - `VM.Snapshot` - Create snapshots

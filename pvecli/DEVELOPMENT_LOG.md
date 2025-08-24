@@ -1,9 +1,11 @@
 # PVE CLI Development Log
 
 ## Context
+
 This project was built as a Proxmox VE CLI tool for learning Python and practicing CLI development.
 
 ## What We Built (v0.1.0 MVP)
+
 - ✅ Complete CLI with 6 commands: `vms`, `start`, `shutdown`, `stop`, `snapshot create`, `backup`
 - ✅ Configuration system: env vars, config files, CLI flags, profiles
 - ✅ Clean output: tables + JSON, no urllib3 warnings
@@ -15,6 +17,7 @@ This project was built as a Proxmox VE CLI tool for learning Python and practici
 - ✅ Development workflow with Makefile
 
 ## Technology Stack
+
 - **Language**: Python 3.8+ (running on 3.9.6)
 - **CLI Framework**: Typer (modern, type-safe)
 - **HTTP Client**: Requests + urllib3
@@ -25,7 +28,8 @@ This project was built as a Proxmox VE CLI tool for learning Python and practici
 - **Package Manager**: uv (fast pip replacement)
 
 ## Project Structure
-```
+
+``` bash
 pvecli/
 ├── pvecli/cli.py        # Main CLI implementation (430 lines)
 ├── tests/               # Test suite
@@ -38,6 +42,7 @@ pvecli/
 ## Key Features Demonstrated
 
 ### Configuration Management
+
 ```python
 class PVEConfig:
     # Priority: CLI flags → ENV vars → config file → defaults
@@ -45,6 +50,7 @@ class PVEConfig:
 ```
 
 ### API Client Pattern
+
 ```python
 class PVEClient:
     # Centralized HTTP client with authentication
@@ -53,6 +59,7 @@ class PVEClient:
 ```
 
 ### Command Structure
+
 ```python
 @app.command()
 def start(vmid: int, wait: bool = False, ...):
@@ -62,6 +69,7 @@ def start(vmid: int, wait: bool = False, ...):
 ```
 
 ## Working Commands (Tested)
+
 ```bash
 # List VMs (your actual cluster)
 ./dist/pve vms
@@ -85,6 +93,7 @@ def start(vmid: int, wait: bool = False, ...):
 ```
 
 ## API Endpoints Used
+
 - `GET /cluster/resources?type=vm` - List VMs
 - `POST /nodes/{node}/qemu/{vmid}/status/start` - Start VM
 - `POST /nodes/{node}/qemu/{vmid}/status/shutdown` - Graceful shutdown
@@ -94,6 +103,7 @@ def start(vmid: int, wait: bool = False, ...):
 - `GET /nodes/{node}/tasks/{upid}/status` - Task status
 
 ## Development Commands
+
 ```bash
 make help          # Show all commands
 make dev           # Install with dev dependencies
@@ -103,6 +113,7 @@ make clean         # Clean build artifacts
 ```
 
 ## Authentication Setup
+
 ```yaml
 # ~/.pvecli/config.yaml
 host: "https://pve.adrilab.com:8006"
@@ -112,6 +123,7 @@ verify_ssl: false
 ```
 
 ## Next Steps for Learning
+
 1. **Study the code** - understand each class and function
 2. **Add features** - implement v0.2 features (JMESPath queries, snapshot list/rollback)
 3. **Refactor sections** - practice by rewriting components
@@ -119,6 +131,7 @@ verify_ssl: false
 5. **Performance improvements** - caching, async, etc.
 
 ## Learning Opportunities
+
 - **Error handling patterns** - see how API errors are caught and converted to user-friendly messages
 - **Configuration management** - multiple sources with priority
 - **Testing strategies** - mocking API calls, CLI testing
@@ -126,4 +139,5 @@ verify_ssl: false
 - **Type hints** - modern Python typing throughout
 
 ## Original Conversation
+
 The complete conversation that built this is saved separately - reference it for the step-by-step process and decision-making rationale.

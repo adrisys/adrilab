@@ -52,6 +52,10 @@ variable "clone_template_debian" {
 variable "cores" {
   description = "Number of CPU cores per VM"
   type        = number
+  validation {
+    condition     = var.cores > 0 && var.cores <= 32
+    error_message = "Cores must be between 1 and 32."
+  }
 }
 
 variable "sockets" {
@@ -67,6 +71,10 @@ variable "vcpus" {
 variable "memory" {
   description = "Memory allocation per VM in MB"
   type        = number
+  validation {
+    condition     = var.memory >= 512 && var.memory <= 32768
+    error_message = "Memory must be between 512 MB and 32 GB (32768 MB)."
+  }
 }
 
 variable "midnight_memory" {

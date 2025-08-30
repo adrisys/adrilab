@@ -50,13 +50,27 @@ virt-customize -a $IMG_NAME \
   --run-command "sed -i 's/^PermitRootLogin yes/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config" \
   --run-command "systemctl reload sshd"
 
+# Check if the customized image file exists
+if [ ! -f "$(pwd)/$IMG_NAME" ]; then
+    echo "❌ Error: Customized image file not found at $(pwd)/$IMG_NAME"
+    echo "Available files:"
+    ls -la *.img *.qcow2 2>/dev/null || echo "No image files found"
+    exit 1
+fi
+
+echo "✅ Image file found: $(pwd)/$IMG_NAME"
+echo "   File size: $(du -h "$(pwd)/$IMG_NAME" | cut -f1)"
+
 # Create the new VM
 echo "Creating VM $VMNAME with ID $VMID..."
 qm create $VMID --name $VMNAME --memory 2048 --cores 2 --net0 virtio,bridge=$BRIDGE --scsihw virtio-scsi-pci
 
 # Import the customized disk
 echo "Importing the customized disk..."
-qm importdisk $VMID /root/$IMG_NAME $STORAGE
+if ! qm importdisk $VMID "$(pwd)/$IMG_NAME" $STORAGE; then
+    echo "❌ Error: Failed to import disk"
+    exit 1
+fi
 
 # Attach the imported disk as SCSI
 qm set $VMID --scsi0 $STORAGE:vm-$VMID-disk-0

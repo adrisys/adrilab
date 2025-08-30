@@ -9,7 +9,7 @@ set -e
 # Variables
 VMID=9000
 VMNAME="ubuntu-template-24.04-LTS"
-STORAGE="local-lvm"
+STORAGE="vm-storage"
 BRIDGE="vmbr0"
 IMG_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
 IMG_NAME="noble-server-cloudimg-amd64.img"

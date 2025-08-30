@@ -8,7 +8,7 @@ set -e
 # Variables
 VMID=9001
 VMNAME="debian-template-12"
-STORAGE="local-lvm"
+STORAGE="vm-storage"
 BRIDGE="vmbr0"
 IMG_URL="https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
 IMG_NAME="debian-12-genericcloud-amd64.qcow2"
